@@ -467,7 +467,7 @@ namespace LimelightHelpers
 
         std::vector<RawFiducial> rawFiducials;
         int valsPerFiducial = 7;
-        int expectedTotalVals = 11 + valsPerFiducial * tagCount;
+        size_t expectedTotalVals = 11 + valsPerFiducial * tagCount;
         
         if (poseArray.size() == expectedTotalVals) 
         {
@@ -488,7 +488,7 @@ namespace LimelightHelpers
         return PoseEstimate(pose, timestamp, latency, tagCount, tagSpan, tagDist, tagArea, rawFiducials);
     }
 
-    inline PoseEstimate getBotPoseEstimate_wpiBlue(const std::string &limelightName = "") {
+    inline std::optional<PoseEstimate> getBotPoseEstimate_wpiBlue(const std::string &limelightName = "") {
         return getBotPoseEstimate(limelightName, "botpose_wpiblue");
     }
 
