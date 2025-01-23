@@ -27,8 +27,8 @@ void Robot::RobotPeriodic() {
 
     LimelightHelpers::SetRobotOrientation("limelight", heading.value(), 0, 0, 0, 0, 0);
     auto llMeasurement = LimelightHelpers::getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
-    if (llMeasurement && llMeasurement->tagCount > 0 && omega < 2_tps) {
-      m_container.drivetrain.AddVisionMeasurement(llMeasurement->pose, utils::FPGAToCurrentTime(llMeasurement->timestampSeconds));
+    if (llMeasurement && llMeasurement->tagCount > 0 && units::math::abs(omega) < 2_tps) {
+      m_container.drivetrain.AddVisionMeasurement(llMeasurement->pose, llMeasurement->timestampSeconds);
     }
   }
 }
