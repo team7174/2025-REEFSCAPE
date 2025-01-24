@@ -17,13 +17,13 @@ class TunerConstants {
     // The steer motor uses any SwerveModule.SteerRequestType control request with the
     // output type specified by SwerveModuleConstants::SteerMotorClosedLoopOutput
     static constexpr configs::Slot0Configs steerGains = configs::Slot0Configs{}
-        .WithKP(60).WithKI(0).WithKD(0.0)
+        .WithKP(70).WithKI(0).WithKD(0.0)
         .WithKS(0.1).WithKV(1.5).WithKA(0)
         .WithStaticFeedforwardSign(signals::StaticFeedforwardSignValue::UseClosedLoopSign);
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants::DriveMotorClosedLoopOutput
     static constexpr configs::Slot0Configs driveGains = configs::Slot0Configs{}
-        .WithKP(0.1).WithKI(0).WithKD(0)
+        .WithKP(0.2).WithKI(0).WithKD(0)
         .WithKS(0).WithKV(0.124);
 
     // The closed-loop output type to use for the steer motors;
@@ -44,7 +44,7 @@ class TunerConstants {
 
     // The stator current at which the wheels start to slip;
     // This needs to be tuned to your individual robot
-    static constexpr units::ampere_t kSlipCurrent = 120_A;
+    static constexpr units::ampere_t kSlipCurrent = 80_A;
 
     // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
     // Some configs will be overwritten; check the `With*InitialConfigs()` API documentation.
