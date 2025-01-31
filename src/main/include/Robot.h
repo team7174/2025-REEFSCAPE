@@ -8,11 +8,15 @@
 
 #include <frc/TimedRobot.h>
 #include <frc2/command/CommandPtr.h>
+#include <frc/smartdashboard/Field2d.h>
+#include <frc/smartdashboard/SmartDashboard.h>
+#include <subsystems/PhotonVision.h>
 
 #include "RobotContainer.h"
 
-class Robot : public frc::TimedRobot {
- public:
+class Robot : public frc::TimedRobot
+{
+public:
   Robot();
   void RobotPeriodic() override;
   void DisabledInit() override;
@@ -28,10 +32,15 @@ class Robot : public frc::TimedRobot {
   void TestPeriodic() override;
   void TestExit() override;
 
- private:
+private:
   frc2::Command *m_autonomousCommand;
 
   RobotContainer m_container;
 
+  frc::Field2d m_field;
+
   static constexpr bool kUseLimelight = false;
+
+  const frc::AprilTagFieldLayout kTagLayout;
+  PhotonVision visionSystem;
 };
