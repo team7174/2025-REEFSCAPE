@@ -13,7 +13,7 @@ frc::Transform3d frontRightTransform{
 };
 
 Robot::Robot()
-    : kTagLayout(frc::AprilTagFieldLayout::LoadField(frc::AprilTagField::kDefaultField)),
+    : kTagLayout(frc::AprilTagFieldLayout::LoadField(frc::AprilTagField::k2025ReefscapeWelded)),
       visionSystem(kTagLayout, "FrontRight", frontRightTransform, "Camera2", frc::Transform3d{})
 {
 }
