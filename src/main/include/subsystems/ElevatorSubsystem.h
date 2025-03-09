@@ -11,6 +11,7 @@
 
 class ElevatorSubsystem : public frc2::SubsystemBase {
  public:
+ 
   ElevatorSubsystem();
 
   /**
@@ -28,12 +29,23 @@ class ElevatorSubsystem : public frc2::SubsystemBase {
   void Stop();
   bool IsAtSetpoint();
 
+  enum SuperStates {
+    coral,
+    algae
+  };
+  void SetSuperState(SuperStates DesiredSuperState);
+
+  //ALL WRONG - setpoint needs to be calculated
   units::turn_t L1Pos = units::turn_t(5);
-  units::turn_t L2Pos = units::turn_t(5);
-  units::turn_t L3Pos = units::turn_t(5);
-  units::turn_t L4Pos = units::turn_t(5);
+  units::turn_t L2Pos = units::turn_t(10);
+  units::turn_t L3Pos = units::turn_t(20);
+  units::turn_t L4Pos = units::turn_t(30);
+  units::turn_t setPoint;
+
+  SuperStates currSuperState;
 
   double holdVal = 0;
+
 
   ctre::phoenix6::controls::PositionDutyCycle desiredPos = ctre::phoenix6::controls::PositionDutyCycle{units::turn_t(0)};
 

@@ -30,12 +30,35 @@ ElevatorSubsystem::ElevatorSubsystem()
 
     m_elevatorMotorLeft.SetNeutralMode(ctre::phoenix6::signals::NeutralModeValue::Brake);
     m_elevatorMotorRight.SetNeutralMode(ctre::phoenix6::signals::NeutralModeValue::Brake);
-}
+}       
 
 void ElevatorSubsystem::Periodic()
 {
     frc::SmartDashboard::PutNumber("Elevator Position", (m_elevatorMotorLeft.GetPosition().GetValueAsDouble()));
 }
+
+void ElevatorSubsystem::SetSuperState(SuperStates DesiredSuperState)
+{
+    currSuperState = DesiredSuperState;
+    switch (DesiredSuperState)
+    {
+    case SuperStates::coral:
+        // ALL WRONG - setpoint needs to be calculated
+        L1Pos = L1Pos;
+        L2Pos = L2Pos;
+        L3Pos = L3Pos;
+        L4Pos = L4Pos;
+        break;
+
+    case SuperStates::algae:
+        // ALL WRONG - setpoint needs to be calculated
+        L1Pos = L1Pos - ElevatorConstants::algaeOffset;
+        L2Pos = L2Pos - ElevatorConstants::algaeOffset;
+        L3Pos = L3Pos - ElevatorConstants::algaeOffset;
+        L4Pos = L4Pos - ElevatorConstants::algaeOffset;
+        break;
+    }
+};
 
 void ElevatorSubsystem::SetElevatorState(ElevatorStates DesiredElevatorState)
 {
@@ -44,15 +67,36 @@ void ElevatorSubsystem::SetElevatorState(ElevatorStates DesiredElevatorState)
     case ElevatorStates::L1:
         // ALL WRONG - setpoint needs to be calculated
         desiredPos = ctre::phoenix6::controls::PositionDutyCycle{L1Pos};
+        setPoint = L1Pos;
+        break;
+
+    case ElevatorStates::L2:
+        // ALL WRONG - setpoint needs to be calculated
+        desiredPos = ctre::phoenix6::controls::PositionDutyCycle{L2Pos};
+        setPoint = L2Pos;
+        break;
+
+    case ElevatorStates::L3:
+        // ALL WRONG - setpoint needs to be calculated
+        desiredPos = ctre::phoenix6::controls::PositionDutyCycle{L3Pos};
+        setPoint = L3Pos;
+        break;
+
+    case ElevatorStates::L4:
+        // ALL WRONG - setpoint needs to be calculated
+        desiredPos = ctre::phoenix6::controls::PositionDutyCycle{L4Pos};
+        setPoint = L4Pos;
         break;
 
     case ElevatorStates::hold:
         holdVal = (m_elevatorMotorLeft.GetPosition().GetValueAsDouble() + m_elevatorMotorRight.GetPosition().GetValueAsDouble()) / 2;
         desiredPos = ctre::phoenix6::controls::PositionDutyCycle{units::turn_t(holdVal)};
+        setPoint = units::turn_t(holdVal);
         break;
 
     default:
         desiredPos = ctre::phoenix6::controls::PositionDutyCycle{units::turn_t(0)};
+        setPoint = units::turn_t(units::turn_t(0));
         break;
     }
 
@@ -66,7 +110,7 @@ void ElevatorSubsystem::Stop()
     m_elevatorMotorRight.StopMotor();
 }
 
-// bool ElevatorSubsystem::IsAtSetpoint()
-// {
-//     return m_elevatorMotorLeft.GetPosition().GetValueAsDouble() == desiredPos.Position;
-// }
+bool ElevatorSubsystem::IsAtSetpoint()
+{
+    return setPoint == m_elevatorMotorLeft.GetPosition().GetValue();
+}

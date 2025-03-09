@@ -43,4 +43,6 @@ private:
 
   const frc::AprilTagFieldLayout kTagLayout;
   PhotonVision visionSystem;
+
+  frc::Timer timer;
 };

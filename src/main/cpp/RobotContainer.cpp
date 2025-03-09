@@ -7,8 +7,12 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc2/command/Commands.h>
 #include <pathplanner/lib/auto/AutoBuilder.h>
+#include <frc2/command/button/Trigger.h>
+
 
 RobotContainer::RobotContainer()
+    : m_intakeSubsystem(),
+      m_elevatorSubsystem()
 {
     autoChooser = pathplanner::AutoBuilder::buildAutoChooser("Tests");
     frc::SmartDashboard::PutData("Auto Mode", &autoChooser);
@@ -45,9 +49,14 @@ void RobotContainer::ConfigureBindings()
     joystick.LeftBumper().OnTrue(drivetrain.RunOnce([this] { drivetrain.SeedFieldCentric(); }));
 
     drivetrain.RegisterTelemetry([this](auto const &state) { logger.Telemeterize(state); });
-}
+        
+    frc2::Trigger{[this]() { return secondaryController.GetRightBumper(); }}
+        .OnTrue(frc2::cmd::RunOnce([this] { m_intakeSubsystem.SetCoralStates(IntakeSubsystem::CoralStates::eject); }));
 
-frc2::Command *RobotContainer::GetAutonomousCommand()
-{
-    return autoChooser.GetSelected();
+    frc2::Trigger{[this]() { return secondaryController.GetLeftBumper(); }}
+        .OnTrue(frc2::cmd::RunOnce([this] { m_intakeSubsystem.SetCoralStates(IntakeSubsystem::CoralStates::hold); }));
+
+
+    frc2::Trigger{[this]() { return secondaryController.GetXButton(); }}
+        .OnTrue(frc2::cmd::RunOnce([this] { m_elevatorSubsystem.SetSuperState( m_elevatorSubsystem.currSuperState == ElevatorSubsystem::SuperStates::coral ? ElevatorSubsystem::SuperStates::algae : ElevatorSubsystem::SuperStates::coral); }));
 }

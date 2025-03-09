@@ -10,6 +10,11 @@
 #include "subsystems/CommandSwerveDrivetrain.h"
 #include "Telemetry.h"
 
+#include "frc/XboxController.h"
+
+#include "subsystems/IntakeSubsystem.h"
+#include "subsystems/ElevatorSubsystem.h"
+
 class RobotContainer {
 private:
     units::meters_per_second_t MaxSpeed = TunerConstants::kSpeedAt12Volts; // kSpeedAt12Volts desired top speed
@@ -30,6 +35,7 @@ private:
 
     frc2::CommandXboxController joystick{0};
 
+
 public:
     subsystems::CommandSwerveDrivetrain drivetrain{TunerConstants::CreateDrivetrain()};
 
@@ -42,6 +48,13 @@ public:
 
     frc2::Command *GetAutonomousCommand();
 
+    IntakeSubsystem m_intakeSubsystem;
+    ElevatorSubsystem m_elevatorSubsystem;
+
 private:
     void ConfigureBindings();
+
+    frc::XboxController primaryController{0};
+    frc::XboxController secondaryController{1};
+
 };

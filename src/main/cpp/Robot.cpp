@@ -78,6 +78,7 @@ void Robot::AutonomousExit() {}
 
 void Robot::TeleopInit()
 {
+  timer.Start();
   if (m_autonomousCommand)
   {
     m_autonomousCommand->Cancel();
