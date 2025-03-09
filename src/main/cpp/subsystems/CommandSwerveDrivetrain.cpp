@@ -74,3 +74,55 @@ void CommandSwerveDrivetrain::StartSimThread()
     });
     m_simNotifier->StartPeriodic(kSimLoopPeriod);
 }
+
+frc::Pose2d CommandSwerveDrivetrain::ClosestAprilTag(frc::Pose2d robotPose)
+{
+    //Use the robot pose and return the closest AprilTag on a REEF
+    std::vector<int> tagIDs = {17, 18, 19, 20, 21, 22, 6, 7, 8, 9, 10, 11};
+
+    for (int tagID : tagIDs) {
+        auto tagPose = aprilTagFieldLayout.GetTagPose(tagID);
+        if (!tagPose) {
+            continue;
+        }
+        frc::Pose2d tagPose2d(tagPose->X(), tagPose->Y(), frc::Rotation2d(tagPose->Rotation().Z()));
+        double distance = robotPose.Translation().Distance(tagPose2d.Translation()).value();
+        if (distance < minDistance) {
+            minDistance = distance;
+            closestTagID = tagID;
+            closestTagPose = tagPose2d;
+        }
+    }
+    return closestTagPose;
+}
+
+frc::Pose2d CommandSwerveDrivetrain::AutoAlign(frc::Pose2d robotPose, ScoringOptions options)
+{
+    auto closestTagPose = ClosestAprilTag(robotPose);
+
+    double x1 = closestTagPose.X().value();
+    double y1 = closestTagPose.Y().value();
+    double z1 = closestTagPose.Rotation().Radians().value();
+
+    double translatedX = x1 + (ScoringConstants::robotToReef * std::cos(z1));
+    double translatedY = y1 + (ScoringConstants::robotToReef * std::sin(z1));
+
+    switch (options) {
+        case ScoringOptions::left:
+        translatedX = translatedX + ((ScoringConstants::reefSpacing - ScoringConstants::scoringChuteOffset) * std::cos(z1 - M_PI_2));
+        translatedY = translatedY + ((ScoringConstants::reefSpacing - ScoringConstants::scoringChuteOffset) * std::sin(z1 - M_PI_2));
+        break;
+
+        case ScoringOptions::right:
+        translatedX = translatedX + ((ScoringConstants::reefSpacing + ScoringConstants::scoringChuteOffset) * std::cos(z1 + M_PI_2));
+        translatedY = translatedY + ((ScoringConstants::reefSpacing + ScoringConstants::scoringChuteOffset) * std::sin(z1 + M_PI_2));
+        break;
+
+        case ScoringOptions::algae:
+        translatedX = translatedX + ((ScoringConstants::scoringChuteOffset) * std::cos(z1 + M_PI_2));
+        translatedY = translatedY + ((ScoringConstants::scoringChuteOffset) * std::sin(z1 + M_PI_2));
+        break;
+    }
+
+    return frc::Pose2d{units::meter_t(translatedX), units::meter_t(translatedY), closestTagPose.Rotation()};
+}

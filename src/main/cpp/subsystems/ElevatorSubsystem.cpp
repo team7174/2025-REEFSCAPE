@@ -24,9 +24,12 @@ ElevatorSubsystem::ElevatorSubsystem()
     VoltLimit.PeakForwardVoltage = 12_V;
     VoltLimit.PeakReverseVoltage = -12_V;
 
-    m_elevatorMotorLeft.GetConfigurator().Apply(m_elevatorConfig);
-    m_elevatorMotorLeft.SetInverted(true);
+    
     m_elevatorMotorRight.GetConfigurator().Apply(m_elevatorConfig);
+    
+    auto &outputConfig = m_elevatorConfig.MotorOutput;
+    outputConfig.Inverted = true;
+    m_elevatorMotorLeft.GetConfigurator().Apply(m_elevatorConfig);
 
     m_elevatorMotorLeft.SetNeutralMode(ctre::phoenix6::signals::NeutralModeValue::Brake);
     m_elevatorMotorRight.SetNeutralMode(ctre::phoenix6::signals::NeutralModeValue::Brake);
