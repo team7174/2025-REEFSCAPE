@@ -17,13 +17,13 @@ class TunerConstants {
     // The steer motor uses any SwerveModule.SteerRequestType control request with the
     // output type specified by SwerveModuleConstants::SteerMotorClosedLoopOutput
     static constexpr configs::Slot0Configs steerGains = configs::Slot0Configs{}
-        .WithKP(65).WithKI(0).WithKD(0.0)
+        .WithKP(100).WithKI(0).WithKD(0.5)
         .WithKS(0.1).WithKV(1.5).WithKA(0)
         .WithStaticFeedforwardSign(signals::StaticFeedforwardSignValue::UseClosedLoopSign);
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants::DriveMotorClosedLoopOutput
     static constexpr configs::Slot0Configs driveGains = configs::Slot0Configs{}
-        .WithKP(0.2).WithKI(0).WithKD(0)
+        .WithKP(0.1).WithKI(0).WithKD(0)
         .WithKS(0).WithKV(0.124);
 
     // The closed-loop output type to use for the steer motors;
@@ -39,12 +39,12 @@ class TunerConstants {
     static constexpr swerve::SteerMotorArrangement kSteerMotorType = swerve::SteerMotorArrangement::TalonFX_Integrated;
 
     // The remote sensor feedback type to use for the steer motors;
-    // When not Pro-licensed, FusedCANcoder/SyncCANcoder automatically fall back to RemoteCANcoder
+    // When not Pro-licensed, Fused*/Sync* automatically fall back to Remote*
     static constexpr swerve::SteerFeedbackType kSteerFeedbackType = swerve::SteerFeedbackType::FusedCANcoder;
 
     // The stator current at which the wheels start to slip;
     // This needs to be tuned to your individual robot
-    static constexpr units::ampere_t kSlipCurrent = 80_A;
+    static constexpr units::ampere_t kSlipCurrent = 120_A;
 
     // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
     // Some configs will be overwritten; check the `With*InitialConfigs()` API documentation.
@@ -57,11 +57,12 @@ class TunerConstants {
                 .WithStatorCurrentLimit(60_A)
                 .WithStatorCurrentLimitEnable(true)
         );
+
     static constexpr configs::CANcoderConfiguration encoderInitialConfigs{};
     // Configs for the Pigeon 2; leave this nullopt to skip applying Pigeon 2 configs
     static constexpr std::optional<configs::Pigeon2Configuration> pigeonConfigs = std::nullopt;
 
-    static constexpr std::string_view kCANBusName = "";
+    static constexpr std::string_view kCANBusName = "Chassis";
 
 public:
     // CAN bus that the devices are located on;
@@ -125,10 +126,10 @@ private:
 
 
     // Front Left
-    static constexpr int kFrontLeftDriveMotorId = 40;
-    static constexpr int kFrontLeftSteerMotorId = 41;
-    static constexpr int kFrontLeftEncoderId = 42;
-    static constexpr units::turn_t kFrontLeftEncoderOffset = 0.201416015625_tr;
+    static constexpr int kFrontLeftDriveMotorId = 10;
+    static constexpr int kFrontLeftSteerMotorId = 11;
+    static constexpr int kFrontLeftEncoderId = 12;
+    static constexpr units::turn_t kFrontLeftEncoderOffset = -0.02099609375_tr;
     static constexpr bool kFrontLeftSteerMotorInverted = true;
     static constexpr bool kFrontLeftEncoderInverted = false;
 
@@ -136,10 +137,10 @@ private:
     static constexpr units::inch_t kFrontLeftYPos = 12_in;
 
     // Front Right
-    static constexpr int kFrontRightDriveMotorId = 10;
-    static constexpr int kFrontRightSteerMotorId = 11;
-    static constexpr int kFrontRightEncoderId = 12;
-    static constexpr units::turn_t kFrontRightEncoderOffset = 0.232666015625_tr;
+    static constexpr int kFrontRightDriveMotorId = 20;
+    static constexpr int kFrontRightSteerMotorId = 21;
+    static constexpr int kFrontRightEncoderId = 22;
+    static constexpr units::turn_t kFrontRightEncoderOffset = 0.051025390625_tr;
     static constexpr bool kFrontRightSteerMotorInverted = true;
     static constexpr bool kFrontRightEncoderInverted = false;
 
@@ -147,10 +148,10 @@ private:
     static constexpr units::inch_t kFrontRightYPos = -12_in;
 
     // Back Left
-    static constexpr int kBackLeftDriveMotorId = 30;
-    static constexpr int kBackLeftSteerMotorId = 31;
-    static constexpr int kBackLeftEncoderId = 32;
-    static constexpr units::turn_t kBackLeftEncoderOffset = 0.0517578125_tr;
+    static constexpr int kBackLeftDriveMotorId = 40;
+    static constexpr int kBackLeftSteerMotorId = 41;
+    static constexpr int kBackLeftEncoderId = 42;
+    static constexpr units::turn_t kBackLeftEncoderOffset = 0.45458984375_tr;
     static constexpr bool kBackLeftSteerMotorInverted = true;
     static constexpr bool kBackLeftEncoderInverted = false;
 
@@ -158,9 +159,9 @@ private:
     static constexpr units::inch_t kBackLeftYPos = 12_in;
 
     // Back Right
-    static constexpr int kBackRightDriveMotorId = 20;
-    static constexpr int kBackRightSteerMotorId = 21;
-    static constexpr int kBackRightEncoderId = 22;
+    static constexpr int kBackRightDriveMotorId = 30;
+    static constexpr int kBackRightSteerMotorId = 31;
+    static constexpr int kBackRightEncoderId = 32;
     static constexpr units::turn_t kBackRightEncoderOffset = -0.1357421875_tr;
     static constexpr bool kBackRightSteerMotorInverted = true;
     static constexpr bool kBackRightEncoderInverted = false;
