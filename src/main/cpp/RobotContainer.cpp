@@ -27,26 +27,25 @@ void RobotContainer::ConfigureBindings()
       // Drivetrain will execute this command periodically
       drivetrain.ApplyRequest([this]() -> auto &&
                               {
-                                return drive.WithVelocityX(-joystick.GetLeftY() * MaxSpeed)      // Drive forward with negative Y (forward)
-                                    .WithVelocityY(-joystick.GetLeftX() * MaxSpeed)              // Drive left with negative X (left)
-                                    .WithRotationalRate(-joystick.GetRightX() * MaxAngularRate); // Drive counterclockwise with negative X (left)
+                                return drive.WithVelocityX(-primaryController.GetLeftY() * MaxSpeed)      // Drive forward with negative Y (forward)
+                                    .WithVelocityY(-primaryController.GetLeftX() * MaxSpeed)              // Drive left with negative X (left)
+                                    .WithRotationalRate(-primaryController.GetRightX() * MaxAngularRate); // Drive counterclockwise with negative X (left)
                               }));
 
-  joystick.A().WhileTrue(drivetrain.ApplyRequest([this]() -> auto &&
+  frc2::Trigger{[this] { return primaryController.GetAButton(); }}.WhileTrue(drivetrain.ApplyRequest([this]() -> auto &&
                                                  { return brake; }));
-  joystick.B().WhileTrue(drivetrain.ApplyRequest([this]() -> auto &&
-                                                 { return point.WithModuleDirection(frc::Rotation2d{-joystick.GetLeftY(), -joystick.GetLeftX()}); }));
+  frc2::Trigger{[this] { return primaryController.GetBButton(); }}.WhileTrue(drivetrain.ApplyRequest([this]() -> auto &&
+                                                 { return point.WithModuleDirection(frc::Rotation2d{-primaryController.GetLeftY(), -primaryController.GetLeftX()}); }));
 
   // Run SysId routines when holding back/start and X/Y.
   // Note that each routine should be run exactly once in a single log.
-  (joystick.Back() && joystick.Y()).WhileTrue(drivetrain.SysIdDynamic(frc2::sysid::Direction::kForward));
-  (joystick.Back() && joystick.X()).WhileTrue(drivetrain.SysIdDynamic(frc2::sysid::Direction::kReverse));
-  (joystick.Start() && joystick.Y()).WhileTrue(drivetrain.SysIdQuasistatic(frc2::sysid::Direction::kForward));
-  (joystick.Start() && joystick.X()).WhileTrue(drivetrain.SysIdQuasistatic(frc2::sysid::Direction::kReverse));
+  frc2::Trigger{[this] { return primaryController.GetBackButton() && primaryController.GetYButton(); }}.WhileTrue(drivetrain.SysIdDynamic(frc2::sysid::Direction::kForward));
+  frc2::Trigger{[this] { return primaryController.GetBackButton() && primaryController.GetXButton(); }}.WhileTrue(drivetrain.SysIdDynamic(frc2::sysid::Direction::kReverse));
+  frc2::Trigger{[this] { return primaryController.GetStartButton() && primaryController.GetYButton(); }}.WhileTrue(drivetrain.SysIdQuasistatic(frc2::sysid::Direction::kForward));
+  frc2::Trigger{[this] { return primaryController.GetStartButton() && primaryController.GetXButton(); }}.WhileTrue(drivetrain.SysIdQuasistatic(frc2::sysid::Direction::kReverse));
 
   // reset the field-centric heading on left bumper press
-  joystick.LeftBumper().OnTrue(drivetrain.RunOnce([this]
-                                                  { drivetrain.SeedFieldCentric(); }));
+  frc2::Trigger{[this] { return primaryController.GetStartButton() && primaryController.GetBackButton(); }}.OnTrue(drivetrain.RunOnce([this] { drivetrain.SeedFieldCentric(); }));
 
   drivetrain.RegisterTelemetry([this](auto const &state)
                                { logger.Telemeterize(state); });
