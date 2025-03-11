@@ -14,6 +14,7 @@
 
 #include "subsystems/IntakeSubsystem.h"
 #include "subsystems/ElevatorSubsystem.h"
+#include "subsystems/CANdleSystem.h"
 
 class RobotContainer {
 private:
@@ -39,6 +40,15 @@ private:
 public:
     subsystems::CommandSwerveDrivetrain drivetrain{TunerConstants::CreateDrivetrain()};
 
+    IntakeSubsystem m_intakeSubsystem;
+    ElevatorSubsystem m_elevatorSubsystem;
+    CANdleSystem m_ledSystem;
+
+
+    bool CoralMode = true;
+
+    static RobotContainer& GetInstance();
+
 private:
     /* Path follower */
     frc::SendableChooser<frc2::Command *> autoChooser;
@@ -47,9 +57,6 @@ public:
     RobotContainer();
 
     frc2::Command *GetAutonomousCommand();
-
-    IntakeSubsystem m_intakeSubsystem;
-    ElevatorSubsystem m_elevatorSubsystem;
 
 private:
     void ConfigureBindings();

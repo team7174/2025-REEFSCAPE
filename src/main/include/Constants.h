@@ -8,15 +8,15 @@ namespace ElevatorConstants {
 constexpr int leftElevatorID = 60;
 constexpr int rightElevatorID = 61;
 // ALL WRONG NUMBERS
-constexpr units::turn_t algaeOffset = units::turn_t(1);
 }  // namespace ElevatorConstants
 
 namespace IntakeConstants {
 // ALL WRONG NUMBERS
 constexpr int coralIntakeID = 62;
 constexpr int algaeIntakeID = 63;
-constexpr int firstIntakeBeamBreakID = 64;
-constexpr int secondIntakeBeamBreakID = 65;
+constexpr int algaePivotID = 64;
+constexpr int firstIntakeBeamBreakID = 0;
+constexpr int secondIntakeBeamBreakID = 1;
 constexpr int currentThreshold = 30;
 constexpr units::second_t kEjectDuration = 4_s;
 }  // namespace IntakeConstants

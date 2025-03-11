@@ -3,8 +3,6 @@
 
 #include <frc/smartdashboard/SmartDashboard.h>
 
-#include "ctre/phoenix6/controls/Follower.hpp"
-
 ClimbSubsystem::ClimbSubsystem()
     : m_climbMotor(ClimbConstants::climbID) {
   auto &slot0Configs = m_climbConfig.Slot0;
@@ -16,7 +14,7 @@ ClimbSubsystem::ClimbSubsystem()
   slot0Configs.kD = 0.0;  // no output for error derivative
 
   auto &CurrLimit = m_climbConfig.CurrentLimits;
-  CurrLimit.StatorCurrentLimit = 30_A;
+  CurrLimit.StatorCurrentLimit = 80_A;
   CurrLimit.StatorCurrentLimitEnable = true;
 
   auto &VoltLimit = m_climbConfig.Voltage;
@@ -31,25 +29,23 @@ void ClimbSubsystem::Periodic() {
   frc::SmartDashboard::PutNumber("Climb Position", (m_climbMotor.GetPosition().GetValueAsDouble()));
 }
 
-void ClimbSubsystem::SetClimbState(ClimbState desiredState) {
-  double position = 0.0;
-
+void ClimbSubsystem::SetClimbState(ClimbStates desiredState) {
   switch (desiredState) {
-    case ClimbState::in:
-      position = InPos;
+    case ClimbStates::in:
+      setPoint = InPos;
       break;
-    case ClimbState::out:
-      position = OutPos;
+    case ClimbStates::out:
+      setPoint = OutPos;
       break;
-    case ClimbState::hold:
-      position = m_climbMotor.GetPosition().GetValueAsDouble();
+    case ClimbStates::hold:
+      setPoint = units::angle::turn_t(m_climbMotor.GetPosition().GetValueAsDouble());
       break;
     default:
-      position = 0.0;
+      setPoint = units::angle::turn_t(0);
       break;
   }
-  desiredPos = ctre::phoenix6::controls::PositionDutyCycle{units::turn_t(position)};
-  setPoint = units::turn_t(position);
+  desiredPos = ctre::phoenix6::controls::PositionDutyCycle{setPoint};
+  m_climbMotor.SetControl(desiredPos);
 }
 
 void ClimbSubsystem::Stop() {

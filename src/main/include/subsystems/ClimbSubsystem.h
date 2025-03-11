@@ -17,19 +17,21 @@ class ClimbSubsystem : public frc2::SubsystemBase {
    * Will be called periodically whenever the CommandScheduler runs.
    */
   void Periodic() override;
+
   enum ClimbStates {
     in,
     out,
     hold
   };
+
   void SetClimbState(ClimbStates DesiredClimbState);
   void Stop();
   bool IsAtSetpoint();
 
   //ALL WRONG - setpoint needs to be calculated
-  units::turn_t InPos = units::turn_t(-5);
-  units::turn_t OutPos = units::turn_t(5);
-  units::turn_t setPoint;
+  units::angle::turn_t InPos = units::angle::turn_t(0);
+  units::angle::turn_t OutPos = units::angle::turn_t(5);
+  units::angle::turn_t setPoint = units::angle::turn_t(0);
 
   double holdVal = 0;
 

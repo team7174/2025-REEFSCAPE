@@ -282,13 +282,15 @@ namespace subsystems
 
         enum ScoringOptions
         {
-            left,
-            right,
-            algae
+            left = 0,
+            right = 1,
+            algae = 2
         };
 
+        frc::Pose2d targetPose = frc::Pose2d();
+
         // Auto align function that returns robot pose based on April Tag ID
-        frc::Pose2d AutoAlign(frc::Pose2d robotPose, ScoringOptions option);
+        frc2::CommandPtr AutoAlign(ScoringOptions option);
 
         frc::Pose2d ClosestAprilTag(frc::Pose2d robotPose);
 

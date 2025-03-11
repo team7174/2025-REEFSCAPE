@@ -10,10 +10,12 @@
 #include "Constants.h"
 
 enum ElevatorStates {
-  L1,
-  L2,
-  L3,
-  L4,
+  L1 = 5,
+  L2 = 10,
+  L3 = 20,
+  L4 = 30,
+  Barge = 140,
+  stow = 0,
   hold
 };
 
@@ -35,16 +37,11 @@ class ElevatorSubsystem : public frc2::SubsystemBase {
   bool IsAtSetpoint();
 
   void SetElevatorState(ElevatorStates DesiredElevatorState);
-  void SetSuperState(SuperStates DesiredSuperState);
 
   // ALL WRONG - setpoint needs to be calculated
-  units::turn_t L1Pos = units::turn_t(5);
-  units::turn_t L2Pos = units::turn_t(10);
-  units::turn_t L3Pos = units::turn_t(20);
-  units::turn_t L4Pos = units::turn_t(30);
+  double algaeOffset = 1;
 
-  units::turn_t setPoint;
-  SuperStates currSuperState;
+  double setPoint;
 
  private:
   ctre::phoenix6::hardware::TalonFX m_elevatorMotorLeft;

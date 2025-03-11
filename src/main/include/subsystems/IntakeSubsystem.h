@@ -12,22 +12,13 @@
 #include "Constants.h"
 #include "subsystems/ElevatorSubsystem.h"
 
-enum CoralStates {
-  hold,
-  intake,
-  eject,
-  slow
-};
+class IntakeSubsystem : public frc2::SubsystemBase
+{
+public:
 
-enum AlgaeStates {
-  hold,
-  intake,
-  eject,
-};
+  frc::XboxController *m_driveController;
 
-class IntakeSubsystem : public frc2::SubsystemBase {
- public:
-  IntakeSubsystem();
+  IntakeSubsystem(frc::XboxController *);
   ElevatorSubsystem *m_elevatorSubsystem;
 
   void Periodic() override;
@@ -38,22 +29,31 @@ class IntakeSubsystem : public frc2::SubsystemBase {
   bool SecondBeamBreakTriggered();
   bool CurrentSpiked();
 
-  void SetCoralStates(CoralStates desiredCoralState);
-  void SetAlgaeStates(AlgaeStates desiredAlgaeState);
+  enum IntakeStates
+  {
+    coralIntake,
+    algaeIntake,
+    coralScore,
+    algaeScore
+  };
 
-  CoralStates currCoralState;
-  AlgaeStates currAlgaeState;
-  units::second_t timeOriginal;
+  void SetIntakeState(IntakeStates desiredCoralState);
 
+  units::second_t intakeTimeStamp;
+
+  IntakeStates currentState = IntakeStates::coralIntake;
+
+  void rumbleController();
   // private means only accessable in that respective file
- private:
+private:
   ctre::phoenix6::hardware::TalonFX m_coralIntakeMotor;
   ctre::phoenix6::hardware::TalonFX m_algaeIntakeMotor;
+  ctre::phoenix6::hardware::TalonFX m_algaePivotMotor;
   ctre::phoenix6::configs::TalonFXConfiguration m_intakeConfig;
 
   frc::DigitalInput firstBeamBreak{IntakeConstants::firstIntakeBeamBreakID};
   frc::DigitalInput secondBeamBreak{IntakeConstants::secondIntakeBeamBreakID};
 
-  double intakeSpeed;
-  double algaeSpeed;
+  double coralSpeed = 0.0;
+  double algaeSpeed = 0.0;
 };

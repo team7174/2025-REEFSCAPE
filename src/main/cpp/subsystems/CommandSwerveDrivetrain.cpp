@@ -96,9 +96,9 @@ frc::Pose2d CommandSwerveDrivetrain::ClosestAprilTag(frc::Pose2d robotPose)
     return closestTagPose;
 }
 
-frc::Pose2d CommandSwerveDrivetrain::AutoAlign(frc::Pose2d robotPose, ScoringOptions options)
+frc2::CommandPtr CommandSwerveDrivetrain::AutoAlign(ScoringOptions options)
 {
-    auto closestTagPose = ClosestAprilTag(robotPose);
+    auto closestTagPose = ClosestAprilTag(TunerSwerveDrivetrain::GetState().Pose);
 
     double x1 = closestTagPose.X().value();
     double y1 = closestTagPose.Y().value();
@@ -124,5 +124,18 @@ frc::Pose2d CommandSwerveDrivetrain::AutoAlign(frc::Pose2d robotPose, ScoringOpt
         break;
     }
 
-    return frc::Pose2d{units::meter_t(translatedX), units::meter_t(translatedY), closestTagPose.Rotation()};
+    targetPose = frc::Pose2d{units::meter_t(translatedX), units::meter_t(translatedY), closestTagPose.Rotation()};
+
+    pathplanner::PathConstraints constraints = pathplanner::PathConstraints(
+        3.0_mps, 4.0_mps_sq,
+        540_deg_per_s, 720_deg_per_s_sq);
+
+    // Since AutoBuilder is configured, we can use it to build pathfinding commands
+    frc2::CommandPtr pathfindingCommand = pathplanner::AutoBuilder::pathfindToPose(
+        targetPose,
+        constraints,
+        0.0_mps // Goal end velocity in meters/sec
+    );
+
+    return pathfindingCommand;
 }

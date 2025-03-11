@@ -1,3 +1,4 @@
+#pragma once
 #ifndef PHOTON_VISION_H
 #define PHOTON_VISION_H
 
