@@ -2,30 +2,27 @@
 
 #include <frc/DutyCycleEncoder.h>
 #include <frc/XboxController.h>
-#include <frc/controller/PIDController.h>
+#include <frc/controller/ProfiledPIDController.h>
 #include <frc2/command/SubsystemBase.h>
 
 #include <ctre/Phoenix6/TalonFX.hpp>
 
 #include "Constants.h"
 
-enum ElevatorStates {
-  L1 = 5,
-  L2 = 10,
-  L3 = 20,
-  L4 = 30,
-  Barge = 140,
-  stow = 0,
-  hold
-};
+class ElevatorSubsystem : public frc2::SubsystemBase
+{
+public:
+  enum ElevatorStates
+  {
+    L1 = 25,
+    L2 = 35,
+    L3 = 65,
+    L4 = 110,
+    Barge = 140,
+    stow = 0,
+    hold
+  };
 
-enum SuperStates {
-  coral,
-  algae
-};
-
-class ElevatorSubsystem : public frc2::SubsystemBase {
- public:
   ElevatorSubsystem();
 
   /**
@@ -36,16 +33,18 @@ class ElevatorSubsystem : public frc2::SubsystemBase {
   void Stop();
   bool IsAtSetpoint();
 
-  void SetElevatorState(ElevatorStates DesiredElevatorState);
+  void SetElevatorState(ElevatorStates DesiredElevatorState, bool algae = false);
 
   // ALL WRONG - setpoint needs to be calculated
   double algaeOffset = 1;
 
   double setPoint;
 
- private:
+private:
   ctre::phoenix6::hardware::TalonFX m_elevatorMotorLeft;
   ctre::phoenix6::hardware::TalonFX m_elevatorMotorRight;
 
   ctre::phoenix6::configs::TalonFXConfiguration m_elevatorConfig;
+
+  frc::ProfiledPIDController<units::turn_t> profiledController;
 };

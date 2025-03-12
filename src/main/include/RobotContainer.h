@@ -11,6 +11,7 @@
 #include "Telemetry.h"
 
 #include "frc/XboxController.h"
+#include "frc/Joystick.h"
 
 #include "subsystems/IntakeSubsystem.h"
 #include "subsystems/ElevatorSubsystem.h"
@@ -59,6 +60,6 @@ private:
     void ConfigureBindings();
 
     frc::XboxController primaryController{0};
-    frc::XboxController secondaryController{1};
+    frc::Joystick secondaryController{1};
 
 };

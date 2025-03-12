@@ -7,7 +7,7 @@
 #include <frc/controller/PIDController.h>
 #include <frc2/command/SubsystemBase.h>
 
-#include <ctre/Phoenix6/TalonFX.hpp>
+#include <rev/SparkFlex.h>
 
 #include "Constants.h"
 #include "subsystems/ElevatorSubsystem.h"
@@ -34,7 +34,8 @@ public:
     coralIntake,
     algaeIntake,
     coralScore,
-    algaeScore
+    algaeScore,
+    hold
   };
 
   void SetIntakeState(IntakeStates desiredCoralState);
@@ -46,9 +47,9 @@ public:
   void rumbleController();
   // private means only accessable in that respective file
 private:
-  ctre::phoenix6::hardware::TalonFX m_coralIntakeMotor;
-  ctre::phoenix6::hardware::TalonFX m_algaeIntakeMotor;
-  ctre::phoenix6::hardware::TalonFX m_algaePivotMotor;
+  rev::spark::SparkFlex m_coralIntakeMotor;
+  rev::spark::SparkFlex m_algaeIntakeMotor;
+  //rev::CANSparkFlex m_algaePivotMotor;
   ctre::phoenix6::configs::TalonFXConfiguration m_intakeConfig;
 
   frc::DigitalInput firstBeamBreak{IntakeConstants::firstIntakeBeamBreakID};

@@ -12,9 +12,9 @@ constexpr int rightElevatorID = 61;
 
 namespace IntakeConstants {
 // ALL WRONG NUMBERS
-constexpr int coralIntakeID = 62;
-constexpr int algaeIntakeID = 63;
-constexpr int algaePivotID = 64;
+constexpr int coralIntakeID = 52;
+constexpr int algaeIntakeID = 53;
+constexpr int algaePivotID = 54;
 constexpr int firstIntakeBeamBreakID = 0;
 constexpr int secondIntakeBeamBreakID = 1;
 constexpr int currentThreshold = 30;

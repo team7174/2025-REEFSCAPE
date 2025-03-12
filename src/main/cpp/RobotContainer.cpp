@@ -58,17 +58,46 @@ void RobotContainer::ConfigureBindings()
       .OnTrue( drivetrain.AutoAlign(subsystems::CommandSwerveDrivetrain::ScoringOptions::left) );
 
   frc2::Trigger{[this]()
-                { return secondaryController.GetLeftTriggerAxis() > 0.5 && !CoralMode; }}
+                { return secondaryController.GetRawButton(10) > 0.5 && !CoralMode; }}
       .OnTrue(frc2::cmd::RunOnce([this]
                                  { m_intakeSubsystem.SetIntakeState(IntakeSubsystem::IntakeStates::algaeIntake); }));
 
   frc2::Trigger{[this]()
-                { return secondaryController.GetLeftTriggerAxis() > 0.5 && CoralMode; }}
+                { return secondaryController.GetRawButton(10) > 0.5 && CoralMode; }}
       .OnTrue(frc2::cmd::RunOnce([this]
-                                 { m_intakeSubsystem.SetIntakeState(IntakeSubsystem::IntakeStates::coralIntake); }));
+                                 { m_intakeSubsystem.SetIntakeState(IntakeSubsystem::IntakeStates::coralIntake);
+                                   m_elevatorSubsystem.SetElevatorState(ElevatorSubsystem::ElevatorStates::stow); }));
+  frc2::Trigger{[this]()
+                { return secondaryController.GetRawButton(7) > 0.5 && CoralMode; }}
+      .OnTrue(frc2::cmd::RunOnce([this]
+                                 { m_intakeSubsystem.SetIntakeState(IntakeSubsystem::IntakeStates::coralScore); }));
+  frc2::Trigger{[this]()
+                { return secondaryController.GetRawButton(7) > 0.5 && !CoralMode; }}
+      .OnTrue(frc2::cmd::RunOnce([this]
+                                 { m_intakeSubsystem.SetIntakeState(IntakeSubsystem::IntakeStates::algaeScore); }));
 
   frc2::Trigger{[this]()
-                { return secondaryController.GetBButton(); }}
+                { return secondaryController.GetRawButton(1); }}
+      .OnTrue(frc2::cmd::RunOnce([this]
+                                 { m_elevatorSubsystem.SetElevatorState(ElevatorSubsystem::ElevatorStates::L4); }));
+
+  frc2::Trigger{[this]()
+                { return secondaryController.GetRawButton(2); }}
+      .OnTrue(frc2::cmd::RunOnce([this]
+                                 { m_elevatorSubsystem.SetElevatorState(ElevatorSubsystem::ElevatorStates::L3, !CoralMode); }));
+
+  frc2::Trigger{[this]()
+                { return secondaryController.GetRawButton(3); }}
+      .OnTrue(frc2::cmd::RunOnce([this]
+                                 { m_elevatorSubsystem.SetElevatorState(ElevatorSubsystem::ElevatorStates::L2, !CoralMode); }));
+
+  frc2::Trigger{[this]()
+                { return secondaryController.GetRawButton(4); }}
+      .OnTrue(frc2::cmd::RunOnce([this]
+                                 { m_elevatorSubsystem.SetElevatorState(ElevatorSubsystem::ElevatorStates::L1); }));
+
+  frc2::Trigger{[this]()
+                { return secondaryController.GetRawButton(8); }}
       .Debounce(500_ms, frc::Debouncer::DebounceType::kBoth)
       .OnTrue(frc2::cmd::RunOnce([this]
                                  { 
