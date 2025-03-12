@@ -46,5 +46,5 @@ private:
 
   ctre::phoenix6::configs::TalonFXConfiguration m_elevatorConfig;
 
-  frc::ProfiledPIDController<units::turn_t> profiledController;
+  frc::ProfiledPIDController<units::turns> profiledController;
 };

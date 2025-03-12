@@ -12,7 +12,7 @@ ElevatorSubsystem::ElevatorSubsystem()
           0.5,  // Placeholder for proportional gain
           0.0,  // Placeholder for integral gain
           0.0,  // Placeholder for derivative gain
-          frc::TrapezoidProfile<units::turn_t>::Constraints(500_tps, 100_tr_per_s_sq))
+          frc::TrapezoidProfile<units::turns>::Constraints(500_tps, 100_tr_per_s_sq))
 {
   auto &slot0Configs = m_elevatorConfig.Slot0;
   slot0Configs.kS = 0.5;  // Add 0.25 V output to overcome static friction
