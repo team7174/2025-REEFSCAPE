@@ -44,6 +44,8 @@ namespace VisionConstants
     inline const Eigen::Matrix<double, 3, 1> kSingleTagStdDevs{4, 4, 8};
     inline const Eigen::Matrix<double, 3, 1> kMultiTagStdDevs{0.5, 0.5, 1};
 
+    inline constexpr std::string_view kCameraName{"FrontRight"};
+
     inline const frc::Transform3d kRobotToBackLeftCam(
         frc::Translation3d(-0.3048_m, -0.3048_m, 0.2076_m), // X: back, Y: left, Z: height
         frc::Rotation3d(
@@ -53,10 +55,10 @@ namespace VisionConstants
             ));
 
     inline const frc::Transform3d kRobotToFrontRightCam(
-        frc::Translation3d(-0.3048_m, -0.3048_m, 0.2076_m), // X: back, Y: left, Z: height
+        frc::Translation3d(0.3048_m, -0.3048_m, 0.2076_m), // X: forward, Y: right, Z: height
         frc::Rotation3d(
             units::degree_t(0),  // Roll (no sideways tilt)
             units::degree_t(15), // Pitch (tilt up)
-            units::degree_t(165) // Yaw (facing backward, 180° - 15° left)
+            units::degree_t(15) // Yaw (turn left)
             ));
 }

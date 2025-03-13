@@ -9,23 +9,22 @@ ElevatorSubsystem::ElevatorSubsystem()
     : m_elevatorMotorLeft(ElevatorConstants::leftElevatorID), // Replace with your TalonFX device ID
       m_elevatorMotorRight(ElevatorConstants::rightElevatorID),
       profiledController(
-          0.5,  // Placeholder for proportional gain
-          0.0,  // Placeholder for integral gain
-          0.0,  // Placeholder for derivative gain
+          0.5, // Placeholder for proportional gain
+          0.0, // Placeholder for integral gain
+          0.0, // Placeholder for derivative gain
           frc::TrapezoidProfile<units::turns>::Constraints(500_tps, 100_tr_per_s_sq))
 {
   auto &slot0Configs = m_elevatorConfig.Slot0;
-  slot0Configs.kS = 0.5;  // Add 0.25 V output to overcome static friction
+  slot0Configs.kS = 0.025;  // Add 0.1 V output to overcome static friction
   slot0Configs.kV = 0.12; // A velocity target of 1 rps results in 0.12 V output
-  // slot0Configs.kA = 0.025;                                                                                                                              // An acceleration of 1 rps/s requires 0.01 V output
-  slot0Configs.kP = 0.5; // An error of 1 rps results in 0.11 V output
-  slot0Configs.kI = 0.0; // no output for integrated error
-  slot0Configs.kD = 0.0; // no output for error derivative
+  slot0Configs.kP = 0.025; // An error of 1 rps results in 0.11 V output
+  slot0Configs.kI = 0;    // no output for integrated error
+  slot0Configs.kD = 0;    // no output for error derivative
 
-  auto &motionMagicConfigs = m_elevatorConfig.MotionMagic;
-  motionMagicConfigs.MotionMagicCruiseVelocity = 500_tps; // Target cruise velocity of 80 rps
-  motionMagicConfigs.MotionMagicAcceleration = 1_tr_per_s_sq;  // Target acceleration of 160 rps/s (0.5 seconds)
-  motionMagicConfigs.MotionMagicJerk = 500_tr_per_s_cu;         // Target jerk of 1600 rps/s/s (0.1 seconds)
+  // auto &motionMagicConfigs = m_elevatorConfig.MotionMagic;
+  // motionMagicConfigs.MotionMagicCruiseVelocity = 2500_tps; // Target cruise velocity of 80 rps
+  // motionMagicConfigs.MotionMagicAcceleration = 1000_tr_per_s_sq;  // Slower acceleration
+  // motionMagicConfigs.MotionMagicJerk = 1500_tr_per_s_cu;         // Smoother jerk
 
   auto &CurrLimit = m_elevatorConfig.CurrentLimits;
   CurrLimit.StatorCurrentLimit = 80_A;
@@ -101,9 +100,10 @@ void ElevatorSubsystem::SetElevatorState(ElevatorStates desiredState, bool algae
 
   setPoint = std::clamp(setPoint, 0.0, 140.0);
   ctre::phoenix6::controls::PositionDutyCycle desiredPos = ctre::phoenix6::controls::PositionDutyCycle{units::turn_t(setPoint)};
+  desiredPos.WithEnableFOC(true);
   m_elevatorMotorLeft.SetControl(desiredPos);
   m_elevatorMotorRight.SetControl(desiredPos);
-  //profiledController.SetGoal(units::turn_t(setPoint));
+  // profiledController.SetGoal(units::turn_t(setPoint));
 }
 
 void ElevatorSubsystem::Stop()

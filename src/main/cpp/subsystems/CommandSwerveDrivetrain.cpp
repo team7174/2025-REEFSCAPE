@@ -59,6 +59,10 @@ void CommandSwerveDrivetrain::Periodic()
             m_hasAppliedOperatorPerspective = true;
         }
     }
+
+    m_field.SetRobotPose(TunerSwerveDrivetrain::GetState().Pose);
+
+    ClosestAprilTag();
 }
 
 void CommandSwerveDrivetrain::StartSimThread()
@@ -75,10 +79,14 @@ void CommandSwerveDrivetrain::StartSimThread()
     m_simNotifier->StartPeriodic(kSimLoopPeriod);
 }
 
-frc::Pose2d CommandSwerveDrivetrain::ClosestAprilTag(frc::Pose2d robotPose)
+int CommandSwerveDrivetrain::ClosestAprilTag()
 {
     //Use the robot pose and return the closest AprilTag on a REEF
     std::vector<int> tagIDs = {17, 18, 19, 20, 21, 22, 6, 7, 8, 9, 10, 11};
+
+    double minDistance = 100000000000000;
+    int closestTagID = 0;
+    frc::Pose2d closestTagPose = frc::Pose2d();
 
     for (int tagID : tagIDs) {
         auto tagPose = VisionConstants::kTagLayout.GetTagPose(tagID);
@@ -86,23 +94,26 @@ frc::Pose2d CommandSwerveDrivetrain::ClosestAprilTag(frc::Pose2d robotPose)
             continue;
         }
         frc::Pose2d tagPose2d(tagPose->X(), tagPose->Y(), frc::Rotation2d(tagPose->Rotation().Z()));
-        double distance = robotPose.Translation().Distance(tagPose2d.Translation()).value();
+        double distance = TunerSwerveDrivetrain::GetState().Pose.Translation().Distance(tagPose2d.Translation()).value();
         if (distance < minDistance) {
             minDistance = distance;
             closestTagID = tagID;
             closestTagPose = tagPose2d;
         }
     }
-    return closestTagPose;
+    frc::SmartDashboard::PutNumber("Closest Tag ID", closestTagID);
+    return closestTagID;
 }
 
 frc2::CommandPtr CommandSwerveDrivetrain::AutoAlign(ScoringOptions options)
 {
-    auto closestTagPose = ClosestAprilTag(TunerSwerveDrivetrain::GetState().Pose);
+    auto closestTagPose = VisionConstants::kTagLayout.GetTagPose(ClosestAprilTag());
 
-    double x1 = closestTagPose.X().value();
-    double y1 = closestTagPose.Y().value();
-    double z1 = closestTagPose.Rotation().Radians().value();
+    frc::Pose2d tagPose2d(closestTagPose->X(), closestTagPose->Y(), frc::Rotation2d(closestTagPose->Rotation().Z()));
+
+    double x1 = tagPose2d.X().value();
+    double y1 = tagPose2d.Y().value();
+    double z1 = tagPose2d.Rotation().Radians().value();
 
     double translatedX = x1 + (ScoringConstants::robotToReef * std::cos(z1));
     double translatedY = y1 + (ScoringConstants::robotToReef * std::sin(z1));
@@ -124,10 +135,10 @@ frc2::CommandPtr CommandSwerveDrivetrain::AutoAlign(ScoringOptions options)
         break;
     }
 
-    targetPose = frc::Pose2d{units::meter_t(translatedX), units::meter_t(translatedY), closestTagPose.Rotation()};
+    targetPose = frc::Pose2d{units::meter_t(translatedX), units::meter_t(translatedY), frc::Rotation2d(tagPose2d.Rotation().Degrees() - 180_deg)};
 
     pathplanner::PathConstraints constraints = pathplanner::PathConstraints(
-        3.0_mps, 4.0_mps_sq,
+        1.0_mps, 0.5_mps_sq,
         540_deg_per_s, 720_deg_per_s_sq);
 
     // Since AutoBuilder is configured, we can use it to build pathfinding commands

@@ -7,6 +7,8 @@
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/SubsystemBase.h>
 #include <frc2/command/sysid/SysIdRoutine.h>
+#include <frc/smartdashboard/Field2d.h>
+#include <frc/smartdashboard/SmartDashboard.h>
 
 #include "generated/TunerConstants.h"
 
@@ -110,6 +112,8 @@ namespace subsystems
         frc2::sysid::SysIdRoutine *m_sysIdRoutineToApply = &m_sysIdRoutineTranslation;
 
     public:
+        frc::Field2d m_field;
+
         /**
          * \brief Constructs a CTRE SwerveDrivetrain using the specified constants.
          *
@@ -127,6 +131,8 @@ namespace subsystems
             {
                 StartSimThread();
             }
+
+            frc::SmartDashboard::PutData("Field", &m_field);
             ConfigureAutoBuilder();
         }
 
@@ -292,11 +298,7 @@ namespace subsystems
         // Auto align function that returns robot pose based on April Tag ID
         frc2::CommandPtr AutoAlign(ScoringOptions option);
 
-        frc::Pose2d ClosestAprilTag(frc::Pose2d robotPose);
-
-        double minDistance = 0;
-        int closestTagID = 0;
-        frc::Pose2d closestTagPose = frc::Pose2d();
+        int ClosestAprilTag();
 
     private:
         void ConfigureAutoBuilder();

@@ -9,6 +9,8 @@
 #include <frc2/command/button/Trigger.h>
 #include <pathplanner/lib/auto/AutoBuilder.h>
 
+#include <frc2/command/DeferredCommand.h>
+
 RobotContainer::RobotContainer()
     : m_intakeSubsystem(&primaryController),
       m_elevatorSubsystem()
@@ -50,12 +52,15 @@ void RobotContainer::ConfigureBindings()
   drivetrain.RegisterTelemetry([this](auto const &state)
                                { logger.Telemeterize(state); });
 
-  frc2::Trigger{[this]()
-                { return primaryController.GetRightTriggerAxis() > 0.5; }}
-      .OnTrue( drivetrain.AutoAlign(subsystems::CommandSwerveDrivetrain::ScoringOptions::right) );
-  frc2::Trigger{[this]()
-                { return primaryController.GetLeftTriggerAxis() > 0.5; }}
-      .OnTrue( drivetrain.AutoAlign(subsystems::CommandSwerveDrivetrain::ScoringOptions::left) );
+
+
+frc2::Trigger([this]() { return primaryController.GetRightTriggerAxis() > 0.5; })
+    .OnTrue(new frc2::DeferredCommand(drivetrain.AutoAlign(subsystems::CommandSwerveDrivetrain::ScoringOptions::right), {&drivetrain}));
+
+frc2::Trigger{[this]() { return primaryController.GetLeftTriggerAxis() > 0.5; }}
+    .OnTrue(drivetrain.AutoAlign(subsystems::CommandSwerveDrivetrain::ScoringOptions::left));
+
+
 
   frc2::Trigger{[this]()
                 { return secondaryController.GetRawButton(10) > 0.5 && !CoralMode; }}

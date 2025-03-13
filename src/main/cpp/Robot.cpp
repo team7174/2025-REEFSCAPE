@@ -4,6 +4,7 @@
 
 #include "Robot.h"
 #include "LimelightHelpers.h"
+#include <frc/smartdashboard/SmartDashboard.h>
 
 #include <frc2/command/CommandScheduler.h>
 
@@ -15,31 +16,31 @@ void Robot::RobotPeriodic()
 {
   frc2::CommandScheduler::GetInstance().Run();
 
-  auto frontRightVisionEst = vision.GetFrontRightEstimatedGlobalPose();
-  if (frontRightVisionEst.has_value())
-  {
-    auto est = frontRightVisionEst.value();
+  auto visionEst = vision.GetEstimatedGlobalPose();
+  if (visionEst.has_value()) {
+    auto est = visionEst.value();
     auto estPose = est.estimatedPose.ToPose2d();
-    auto estStdDevs = vision.GetEstimationStdDevs(estPose, "FrontRight");
-
+    auto estStdDevs = vision.GetEstimationStdDevs(estPose);
     std::array<double, 3> stdDevs = {estStdDevs(0), estStdDevs(1), estStdDevs(2)};
-    m_container.drivetrain.SetVisionMeasurementStdDevs(stdDevs);
-
+    frc::SmartDashboard::PutNumberArray("estDevs", stdDevs);
+    frc::SmartDashboard::PutNumber("X", double(est.estimatedPose.ToPose2d().X()));
+    frc::SmartDashboard::PutNumber("Y", double(est.estimatedPose.ToPose2d().Y()));
+    //m_container.drivetrain.SetVisionMeasurementStdDevs(stdDevs);
     m_container.drivetrain.AddVisionMeasurement(est.estimatedPose.ToPose2d(), est.timestamp);
   }
 
-  auto backLeftVisionEst = vision.GetBackLeftEstimatedGlobalPose();
-  if (backLeftVisionEst.has_value())
-  {
-    auto est = backLeftVisionEst.value();
-    auto estPose = est.estimatedPose.ToPose2d();
-    auto estStdDevs = vision.GetEstimationStdDevs(estPose, "BackLeft");
+  // auto backLeftVisionEst = vision.GetBackLeftEstimatedGlobalPose();
+  // if (backLeftVisionEst.has_value())
+  // {
+  //   auto est = backLeftVisionEst.value();
+  //   auto estPose = est.estimatedPose.ToPose2d();
+  //   auto estStdDevs = vision.GetEstimationStdDevs(estPose, "BackLeft");
 
-    std::array<double, 3> stdDevs = {estStdDevs(0), estStdDevs(1), estStdDevs(2)};
-    m_container.drivetrain.SetVisionMeasurementStdDevs(stdDevs);
+  //   std::array<double, 3> stdDevs = {estStdDevs(0), estStdDevs(1), estStdDevs(2)};
+  //   m_container.drivetrain.SetVisionMeasurementStdDevs(stdDevs);
 
-    m_container.drivetrain.AddVisionMeasurement(est.estimatedPose.ToPose2d(), est.timestamp);
-  }
+  //   m_container.drivetrain.AddVisionMeasurement(est.estimatedPose.ToPose2d(), est.timestamp);
+  // }
 
 
   /*
