@@ -98,10 +98,11 @@ void RobotContainer::ConfigureBindings()
 
   frc2::Trigger{[this]()
                 { return secondaryController.GetRawButton(8); }}
-      .Debounce(500_ms, frc::Debouncer::DebounceType::kBoth)
+      .Debounce(50_ms, frc::Debouncer::DebounceType::kBoth)
       .OnTrue(frc2::cmd::RunOnce([this]
                                  { 
         CoralMode = !CoralMode;
+        frc::SmartDashboard::PutBoolean("Coral Mode", CoralMode);
         if (CoralMode) {
           m_ledSystem.UpdateSetLed([]() { return 255.0; }, []() { return 255.0; }, []() { return 255.0; }, []() { return 1.0; });
           m_ledSystem.SetColors();
@@ -115,10 +116,4 @@ void RobotContainer::ConfigureBindings()
 frc2::Command *RobotContainer::GetAutonomousCommand()
 {
   return autoChooser.GetSelected();
-}
-
-RobotContainer &RobotContainer::GetInstance()
-{
-  static RobotContainer instance;
-  return instance;
 }

@@ -294,8 +294,6 @@ namespace subsystems
 
         frc::Pose2d ClosestAprilTag(frc::Pose2d robotPose);
 
-        frc::AprilTagFieldLayout aprilTagFieldLayout = frc::AprilTagFieldLayout::LoadField(frc::AprilTagField::k2025ReefscapeWelded);
-
         double minDistance = 0;
         int closestTagID = 0;
         frc::Pose2d closestTagPose = frc::Pose2d();

@@ -10,7 +10,7 @@
 #include <frc2/command/CommandPtr.h>
 #include <frc/smartdashboard/Field2d.h>
 #include <frc/smartdashboard/SmartDashboard.h>
-#include <subsystems/PhotonVision.h>
+#include <subsystems/Vision.h>
 
 #include "RobotContainer.h"
 
@@ -41,8 +41,7 @@ private:
 
   static constexpr bool kUseLimelight = false;
 
-  const frc::AprilTagFieldLayout kTagLayout;
-  PhotonVision visionSystem;
-
   frc::Timer timer;
+
+  Vision vision{};
 };

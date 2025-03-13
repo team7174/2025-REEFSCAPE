@@ -31,34 +31,6 @@ CANdleSystem::~CANdleSystem() {
     if(m_toAnimate != NULL) delete m_toAnimate;
 }
 
-void CANdleSystem::IncrementAnimation() {
-    switch(m_currentAnimation) {
-        case ColorFlow: ChangeAnimation(AnimationTypes::Fire); break;
-        case Fire: ChangeAnimation(AnimationTypes::Larson); break;
-        case Larson: ChangeAnimation(AnimationTypes::Rainbow); break;
-        case Rainbow: ChangeAnimation(AnimationTypes::RgbFade); break;
-        case RgbFade: ChangeAnimation(AnimationTypes::SingleFade); break;
-        case SingleFade: ChangeAnimation(AnimationTypes::Strobe); break;
-        case Strobe: ChangeAnimation(AnimationTypes::Twinkle); break;
-        case Twinkle: ChangeAnimation(AnimationTypes::TwinkleOff); break;
-        case TwinkleOff: ChangeAnimation(AnimationTypes::ColorFlow); break;
-        case SetAll: ChangeAnimation(AnimationTypes::ColorFlow); break;
-    }
-}
-void CANdleSystem::DecrementAnimation() {
-    switch(m_currentAnimation) {
-        case ColorFlow: ChangeAnimation(AnimationTypes::TwinkleOff); break;
-        case Fire: ChangeAnimation(AnimationTypes::ColorFlow); break;
-        case Larson: ChangeAnimation(AnimationTypes::Fire); break;
-        case Rainbow: ChangeAnimation(AnimationTypes::Larson); break;
-        case RgbFade: ChangeAnimation(AnimationTypes::Rainbow); break;
-        case SingleFade: ChangeAnimation(AnimationTypes::RgbFade); break;
-        case Strobe: ChangeAnimation(AnimationTypes::SingleFade); break;
-        case Twinkle: ChangeAnimation(AnimationTypes::Strobe); break;
-        case TwinkleOff: ChangeAnimation(AnimationTypes::Twinkle); break;
-        case SetAll: ChangeAnimation(AnimationTypes::ColorFlow); break;
-    }
-}
 void CANdleSystem::SetColors() {
     ChangeAnimation(AnimationTypes::SetAll);
 }

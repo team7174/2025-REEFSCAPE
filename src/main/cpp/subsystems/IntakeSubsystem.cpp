@@ -3,10 +3,37 @@
 
 IntakeSubsystem::IntakeSubsystem(frc::XboxController *primaryController)
     : m_coralIntakeMotor(IntakeConstants::coralIntakeID, rev::spark::SparkFlex::MotorType::kBrushless),  // Replace with your TalonFX device ID
-      m_algaeIntakeMotor(IntakeConstants::algaeIntakeID, rev::spark::SparkFlex::MotorType::kBrushless)
-      //m_algaePivotMotor(IntakeConstants::algaePivotID)   // Replace with your TalonFX device ID
+      m_algaeIntakeMotor(IntakeConstants::algaeIntakeID, rev::spark::SparkFlex::MotorType::kBrushless),
+      m_algaePivotMotor(IntakeConstants::algaePivotID, rev::spark::SparkFlex::MotorType::kBrushless),
+      m_algaePivotPID(m_algaePivotMotor.GetClosedLoopController())   // Replace with your TalonFX device ID
 {
   m_driveController = primaryController;
+
+  m_algaePivotConfig.closedLoop
+      .SetFeedbackSensor(rev::spark::ClosedLoopConfig::FeedbackSensor::kPrimaryEncoder)
+      // Set PID values for position control. We don't need to pass a closed
+      // loop slot, as it will default to slot 0.
+      .P(0.1)
+      .I(0)
+      .D(0)
+      .OutputRange(-1, 1)
+      // Set PID values for velocity control in slot 1
+      .P(0.0001, rev::spark::ClosedLoopSlot::kSlot1)
+      .I(0, rev::spark::ClosedLoopSlot::kSlot1)
+      .D(0, rev::spark::ClosedLoopSlot::kSlot1)
+      .VelocityFF(1.0 / 5767, rev::spark::ClosedLoopSlot::kSlot1)
+      .OutputRange(-1, 1, rev::spark::ClosedLoopSlot::kSlot1);
+
+      m_algaePivotConfig.SetIdleMode(rev::spark::SparkBaseConfig::IdleMode::kBrake);
+
+      m_algaePivotMotor.Configure(m_algaePivotConfig, rev::spark::SparkBase::ResetMode::kResetSafeParameters,
+                    rev::spark::SparkBase::PersistMode::kPersistParameters);
+
+      m_coralIntakeMotor.Configure(m_algaePivotConfig, rev::spark::SparkBase::ResetMode::kResetSafeParameters,
+                    rev::spark::SparkBase::PersistMode::kPersistParameters);
+
+      m_algaeIntakeMotor.Configure(m_algaePivotConfig, rev::spark::SparkBase::ResetMode::kResetSafeParameters,
+                    rev::spark::SparkBase::PersistMode::kPersistParameters);
 }
 
 void IntakeSubsystem::Periodic() {
@@ -38,7 +65,7 @@ void IntakeSubsystem::Periodic() {
     }
   }
   
-  m_coralIntakeMotor.Set(-coralSpeed);
+  m_coralIntakeMotor.Set(coralSpeed);
   m_algaeIntakeMotor.Set(algaeSpeed);
 }
 

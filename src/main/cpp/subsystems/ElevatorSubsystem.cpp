@@ -22,10 +22,10 @@ ElevatorSubsystem::ElevatorSubsystem()
   slot0Configs.kI = 0.0; // no output for integrated error
   slot0Configs.kD = 0.0; // no output for error derivative
 
-  // auto &motionMagicConfigs = m_elevatorConfig.MotionMagic;
-  // motionMagicConfigs.MotionMagicCruiseVelocity = 5000_tps; // Target cruise velocity of 80 rps
-  // motionMagicConfigs.MotionMagicAcceleration = 5_tr_per_s_sq;  // Target acceleration of 160 rps/s (0.5 seconds)
-  // motionMagicConfigs.MotionMagicJerk = 1600_tr_per_s_cu;         // Target jerk of 1600 rps/s/s (0.1 seconds)
+  auto &motionMagicConfigs = m_elevatorConfig.MotionMagic;
+  motionMagicConfigs.MotionMagicCruiseVelocity = 500_tps; // Target cruise velocity of 80 rps
+  motionMagicConfigs.MotionMagicAcceleration = 1_tr_per_s_sq;  // Target acceleration of 160 rps/s (0.5 seconds)
+  motionMagicConfigs.MotionMagicJerk = 500_tr_per_s_cu;         // Target jerk of 1600 rps/s/s (0.1 seconds)
 
   auto &CurrLimit = m_elevatorConfig.CurrentLimits;
   CurrLimit.StatorCurrentLimit = 80_A;
@@ -53,8 +53,8 @@ void ElevatorSubsystem::Periodic()
 {
   frc::SmartDashboard::PutNumber("Elevator Position", (m_elevatorMotorLeft.GetPosition().GetValueAsDouble()));
 
-  m_elevatorMotorLeft.Set(profiledController.Calculate(units::angle::turn_t(m_elevatorMotorLeft.GetPosition().GetValueAsDouble())));
-  m_elevatorMotorRight.Set(profiledController.Calculate(units::angle::turn_t(m_elevatorMotorRight.GetPosition().GetValueAsDouble())));
+  // m_elevatorMotorLeft.Set(profiledController.Calculate(units::angle::turn_t(m_elevatorMotorLeft.GetPosition().GetValueAsDouble())));
+  // m_elevatorMotorRight.Set(profiledController.Calculate(units::angle::turn_t(m_elevatorMotorRight.GetPosition().GetValueAsDouble())));
 }
 
 void ElevatorSubsystem::SetElevatorState(ElevatorStates desiredState, bool algae)
@@ -100,10 +100,10 @@ void ElevatorSubsystem::SetElevatorState(ElevatorStates desiredState, bool algae
   }
 
   setPoint = std::clamp(setPoint, 0.0, 140.0);
-  // ctre::phoenix6::controls::PositionDutyCycle desiredPos = ctre::phoenix6::controls::PositionDutyCycle{units::turn_t(setPoint)};
-  // m_elevatorMotorLeft.SetControl(desiredPos);
-  // m_elevatorMotorRight.SetControl(desiredPos);
-  profiledController.SetGoal(units::turn_t(setPoint));
+  ctre::phoenix6::controls::PositionDutyCycle desiredPos = ctre::phoenix6::controls::PositionDutyCycle{units::turn_t(setPoint)};
+  m_elevatorMotorLeft.SetControl(desiredPos);
+  m_elevatorMotorRight.SetControl(desiredPos);
+  //profiledController.SetGoal(units::turn_t(setPoint));
 }
 
 void ElevatorSubsystem::Stop()

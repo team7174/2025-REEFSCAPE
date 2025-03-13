@@ -7,14 +7,7 @@
 
 #include <frc2/command/CommandScheduler.h>
 
-frc::Transform3d frontRightTransform{
-    frc::Translation3d(0.3175_m, -0.3048_m, 0.0_m), // X (forward), Y (right), Z (assumed 0)
-    frc::Rotation3d(0_deg, 15_deg, 15_deg) // Start with no rotation
-};
-
 Robot::Robot()
-    : kTagLayout(frc::AprilTagFieldLayout::LoadField(frc::AprilTagField::k2025ReefscapeWelded)),
-      visionSystem(kTagLayout, "FrontRight", frontRightTransform, "Camera2", frc::Transform3d{})
 {
 }
 
@@ -22,16 +15,32 @@ void Robot::RobotPeriodic()
 {
   frc2::CommandScheduler::GetInstance().Run();
 
-  visionSystem.Update();
-  auto robotPoses = visionSystem.GetRobotPoses();
-  if (!robotPoses.empty())
+  auto frontRightVisionEst = vision.GetFrontRightEstimatedGlobalPose();
+  if (frontRightVisionEst.has_value())
   {
-    // Define an example measurement standard deviation (tuned per robot)
-    std::array<double, 3> visionStdDevs = {0.5, 0.5, 10.0}; // X, Y (meters), Theta (radians)
+    auto est = frontRightVisionEst.value();
+    auto estPose = est.estimatedPose.ToPose2d();
+    auto estStdDevs = vision.GetEstimationStdDevs(estPose, "FrontRight");
 
-    m_container.drivetrain.SetVisionMeasurementStdDevs(visionStdDevs);
-    m_container.drivetrain.AddVisionMeasurement(robotPoses[0].ToPose2d(), frc::Timer::GetFPGATimestamp());
+    std::array<double, 3> stdDevs = {estStdDevs(0), estStdDevs(1), estStdDevs(2)};
+    m_container.drivetrain.SetVisionMeasurementStdDevs(stdDevs);
+
+    m_container.drivetrain.AddVisionMeasurement(est.estimatedPose.ToPose2d(), est.timestamp);
   }
+
+  auto backLeftVisionEst = vision.GetBackLeftEstimatedGlobalPose();
+  if (backLeftVisionEst.has_value())
+  {
+    auto est = backLeftVisionEst.value();
+    auto estPose = est.estimatedPose.ToPose2d();
+    auto estStdDevs = vision.GetEstimationStdDevs(estPose, "BackLeft");
+
+    std::array<double, 3> stdDevs = {estStdDevs(0), estStdDevs(1), estStdDevs(2)};
+    m_container.drivetrain.SetVisionMeasurementStdDevs(stdDevs);
+
+    m_container.drivetrain.AddVisionMeasurement(est.estimatedPose.ToPose2d(), est.timestamp);
+  }
+
 
   /*
    * This example of adding Limelight is very simple and may not be sufficient for on-field use.

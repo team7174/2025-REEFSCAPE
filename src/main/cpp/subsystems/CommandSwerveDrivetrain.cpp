@@ -81,7 +81,7 @@ frc::Pose2d CommandSwerveDrivetrain::ClosestAprilTag(frc::Pose2d robotPose)
     std::vector<int> tagIDs = {17, 18, 19, 20, 21, 22, 6, 7, 8, 9, 10, 11};
 
     for (int tagID : tagIDs) {
-        auto tagPose = aprilTagFieldLayout.GetTagPose(tagID);
+        auto tagPose = VisionConstants::kTagLayout.GetTagPose(tagID);
         if (!tagPose) {
             continue;
         }
