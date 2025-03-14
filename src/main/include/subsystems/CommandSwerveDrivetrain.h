@@ -5,6 +5,7 @@
 #include <frc/DriverStation.h>
 #include <frc/Notifier.h>
 #include <frc2/command/CommandPtr.h>
+#include <frc2/command/DeferredCommand.h>
 #include <frc2/command/SubsystemBase.h>
 #include <frc2/command/sysid/SysIdRoutine.h>
 #include <frc/smartdashboard/Field2d.h>

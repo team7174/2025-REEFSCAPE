@@ -54,11 +54,25 @@ void RobotContainer::ConfigureBindings()
 
 
 
-frc2::Trigger([this]() { return primaryController.GetRightTriggerAxis() > 0.5; })
-    .OnTrue(new frc2::DeferredCommand(drivetrain.AutoAlign(subsystems::CommandSwerveDrivetrain::ScoringOptions::right), {&drivetrain}));
+// Assuming primaryController is your joystick or gamepad object
+// Assuming primaryController is a joystick and rightTriggerAxis is an axis number
+frc2::Trigger([this] { return primaryController.GetRightTriggerAxis() > 0.5; })
+    .OnTrue(frc2::cmd::RunOnce([this] {
+        auto command = drivetrain.AutoAlign(subsystems::CommandSwerveDrivetrain::ScoringOptions::right).Unwrap();
+        if (command) {  // Make sure the command is valid
+            frc2::CommandScheduler::GetInstance().Schedule(command.release());
+        }
+    }));
 
-frc2::Trigger{[this]() { return primaryController.GetLeftTriggerAxis() > 0.5; }}
-    .OnTrue(drivetrain.AutoAlign(subsystems::CommandSwerveDrivetrain::ScoringOptions::left));
+
+
+frc2::Trigger([this] { return primaryController.GetLeftTriggerAxis() > 0.5; })
+    .OnTrue(frc2::cmd::RunOnce([this] {
+        auto command = drivetrain.AutoAlign(subsystems::CommandSwerveDrivetrain::ScoringOptions::left).Unwrap();
+        if (command) {  // Make sure the command is valid
+            frc2::CommandScheduler::GetInstance().Schedule(command.release());
+        }
+    }));
 
 
 
