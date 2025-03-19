@@ -10,7 +10,6 @@
 #include <frc2/command/CommandPtr.h>
 #include <frc/smartdashboard/Field2d.h>
 #include <frc/smartdashboard/SmartDashboard.h>
-#include <subsystems/Vision.h>
 
 #include "RobotContainer.h"
 
@@ -32,6 +31,8 @@ public:
   void TestPeriodic() override;
   void TestExit() override;
 
+  void LimelightPose();
+
 private:
   frc2::Command *m_autonomousCommand;
 
@@ -42,6 +43,4 @@ private:
   static constexpr bool kUseLimelight = false;
 
   frc::Timer timer;
-
-  Vision vision{};
 };

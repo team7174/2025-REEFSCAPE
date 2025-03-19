@@ -26,15 +26,14 @@ namespace IntakeConstants
 
 namespace ClimbConstants
 {
-    // ALL WRONG NUMBERS
-    constexpr int climbID = 66;
+    constexpr int climbID = 62;
 } // namespace ClimbConstants
 
 namespace ScoringConstants
 {
     constexpr double reefSpacing = 0.1643126;
-    constexpr double scoringChuteOffset = 0.1778;
-    constexpr double robotToReef = 0.457;
+    constexpr double scoringChuteOffset = 0.1643126;
+    constexpr double robotToReef = 0.4572;
 } // namespace ScoringConstants
 
 namespace VisionConstants

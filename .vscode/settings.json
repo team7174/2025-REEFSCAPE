@@ -94,7 +94,8 @@
     "valarray": "cpp",
     "variant": "cpp",
     "*.inc": "cpp",
-    "charconv": "cpp"
+    "charconv": "cpp",
+    "xtr1common": "cpp"
   },
   "C_Cpp.errorSquiggles": "enabled"
 }

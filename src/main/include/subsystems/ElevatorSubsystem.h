@@ -18,7 +18,7 @@ public:
     L2 = 35,
     L3 = 65,
     L4 = 110,
-    Barge = 140,
+    Barge = 135,
     stow = 0,
     hold
   };
@@ -38,7 +38,9 @@ public:
   // ALL WRONG - setpoint needs to be calculated
   double algaeOffset = 1;
 
-  double setPoint;
+  double setPoint ;
+
+  int offset = 0;
 
 private:
   ctre::phoenix6::hardware::TalonFX m_elevatorMotorLeft;

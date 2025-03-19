@@ -16,32 +16,7 @@ void Robot::RobotPeriodic()
 {
   frc2::CommandScheduler::GetInstance().Run();
 
-  auto visionEst = vision.GetEstimatedGlobalPose();
-  if (visionEst.has_value()) {
-    auto est = visionEst.value();
-    auto estPose = est.estimatedPose.ToPose2d();
-    auto estStdDevs = vision.GetEstimationStdDevs(estPose);
-    std::array<double, 3> stdDevs = {estStdDevs(0), estStdDevs(1), estStdDevs(2)};
-    frc::SmartDashboard::PutNumberArray("estDevs", stdDevs);
-    frc::SmartDashboard::PutNumber("X", double(est.estimatedPose.ToPose2d().X()));
-    frc::SmartDashboard::PutNumber("Y", double(est.estimatedPose.ToPose2d().Y()));
-    //m_container.drivetrain.SetVisionMeasurementStdDevs(stdDevs);
-    m_container.drivetrain.AddVisionMeasurement(est.estimatedPose.ToPose2d(), est.timestamp);
-  }
-
-  // auto backLeftVisionEst = vision.GetBackLeftEstimatedGlobalPose();
-  // if (backLeftVisionEst.has_value())
-  // {
-  //   auto est = backLeftVisionEst.value();
-  //   auto estPose = est.estimatedPose.ToPose2d();
-  //   auto estStdDevs = vision.GetEstimationStdDevs(estPose, "BackLeft");
-
-  //   std::array<double, 3> stdDevs = {estStdDevs(0), estStdDevs(1), estStdDevs(2)};
-  //   m_container.drivetrain.SetVisionMeasurementStdDevs(stdDevs);
-
-  //   m_container.drivetrain.AddVisionMeasurement(est.estimatedPose.ToPose2d(), est.timestamp);
-  // }
-
+  frc::SmartDashboard::PutNumber("Match Time", double(timer.GetMatchTime()));
 
   /*
    * This example of adding Limelight is very simple and may not be sufficient for on-field use.
@@ -51,24 +26,64 @@ void Robot::RobotPeriodic()
    * This example is sufficient to show that vision integration is possible, though exact implementation
    * of how to use vision should be tuned per-robot and to the team's specification.
    */
+  LimelightPose();
+  
   if (kUseLimelight)
   {
     auto const driveState = m_container.drivetrain.GetState();
     auto const heading = driveState.Pose.Rotation().Degrees();
     auto const omega = driveState.Speeds.omega;
 
-    LimelightHelpers::SetRobotOrientation("limelight", heading.value(), 0, 0, 0, 0, 0);
-    auto llMeasurement = LimelightHelpers::getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
-    if (llMeasurement && llMeasurement->tagCount > 0 && units::math::abs(omega) < 2_tps)
+    LimelightHelpers::SetRobotOrientation("limelight-threeg", heading.value(), 0, 0, 0, 0, 0);
+    auto llMeasurement = LimelightHelpers::getBotPoseEstimate_wpiBlue_MegaTag2("limelight-threeg");
+    if (llMeasurement && llMeasurement->tagCount > 0 && units::math::abs(omega) < 2_tps && llMeasurement->pose.X() != 8.7741252_m)
     {
       m_container.drivetrain.AddVisionMeasurement(llMeasurement->pose, llMeasurement->timestampSeconds);
     }
+    if (llMeasurement->pose.X() == 8.7741252_m)
+    {
+      LimelightHelpers::SetRobotOrientation("limelight-threeg", heading.value(), 0, 0, 0, 0, 0);
+      auto llMeasurement = LimelightHelpers::getBotPoseEstimate_wpiBlue("limelight-threeg");
+      if (llMeasurement && llMeasurement->tagCount > 0 && units::math::abs(omega) < 2_tps)
+      {
+        m_container.drivetrain.AddVisionMeasurement(llMeasurement->pose, llMeasurement->timestampSeconds);
+      }
+    }
+
+    // LimelightHelpers::SetRobotOrientation("limelight-three", heading.value(), 0, 0, 0, 0, 0);
+    // auto llMeasurement3 = LimelightHelpers::getBotPoseEstimate_wpiBlue_MegaTag2("limelight-three");
+    // if (llMeasurement3 && llMeasurement3->tagCount > 0 && units::math::abs(omega) < 2_tps && llMeasurement3->pose.X() != 8.7741252_m)
+    // {
+    //   m_container.drivetrain.AddVisionMeasurement(llMeasurement3->pose, llMeasurement3->timestampSeconds);
+    // }
   }
 }
 
 void Robot::DisabledInit() {}
 
-void Robot::DisabledPeriodic() {}
+void Robot::DisabledPeriodic()
+{
+  if (kUseLimelight)
+  {
+    auto const driveState = m_container.drivetrain.GetState();
+    auto const heading = driveState.Pose.Rotation().Degrees();
+    auto const omega = driveState.Speeds.omega;
+
+    LimelightHelpers::SetRobotOrientation("limelight-threeg", heading.value(), 0, 0, 0, 0, 0);
+    auto llMeasurement = LimelightHelpers::getBotPoseEstimate_wpiBlue("limelight-threeg");
+    if (llMeasurement && llMeasurement->tagCount > 0 && units::math::abs(omega) < 2_tps)
+    {
+      m_container.drivetrain.AddVisionMeasurement(llMeasurement->pose, llMeasurement->timestampSeconds);
+    }
+
+    // LimelightHelpers::SetRobotOrientation("limelight-three", heading.value(), 0, 0, 0, 0, 0);
+    // auto llMeasurement3 = LimelightHelpers::getBotPoseEstimate_wpiBlue("limelight-three");
+    // if (llMeasurement3 && llMeasurement3->tagCount > 0 && units::math::abs(omega) < 2_tps)
+    // {
+    //   m_container.drivetrain.AddVisionMeasurement(llMeasurement3->pose, llMeasurement3->timestampSeconds);
+    // }
+  }
+}
 
 void Robot::DisabledExit() {}
 
@@ -107,6 +122,61 @@ void Robot::TestInit()
 void Robot::TestPeriodic() {}
 
 void Robot::TestExit() {}
+
+void Robot::LimelightPose()
+{
+  double xyStds;
+  units::angle::radian_t degStds;
+
+  std::shared_ptr<nt::NetworkTable> ll = nt::NetworkTableInstance::GetDefault().GetTable("limelight-threeg");
+  auto llBotPoseEntry = ll->GetEntry("botpose_wpiblue");
+  auto llBotPose = llBotPoseEntry.GetDoubleArray({});
+
+  // weirdness
+  if (llBotPose.size() < 6)
+  {
+    return;
+  }
+  frc::Pose2d visionBotPose = frc::Pose2d(
+      frc::Translation2d(units::length::meter_t(llBotPose[0]), units::length::meter_t(llBotPose[1])),
+      frc::Rotation2d(units::angle::radian_t(llBotPose[5] * (M_PI / 180.0))));
+
+  // getlastchange() in microseconds, ll latency in milliseconds
+  auto visionTime = units::time::second_t((llBotPoseEntry.GetLastChange() / 1000000.0) - (llBotPose[6] / 1000.0));
+  // auto visionTime = frc::Timer::GetFPGATimestamp() - (llBotPose[6]/1000.0)
+
+  // distance from current pose to vision estimated pose
+  units::meter_t poseDifference = m_container.drivetrain.GetRobotPose().Translation().Distance(visionBotPose.Translation());
+
+  int tagCount = (int)llBotPose[7];
+  double tagArea = llBotPose[10];
+  // multiple targets detected
+  if (tagCount >= 2)
+  {
+    xyStds = 0.5;
+    degStds = units::angle::radian_t(6_deg);
+  }
+  // 1 target with large area and close to estimated pose
+  else if (tagArea > 0.8 && poseDifference < 0.5_m)
+  {
+    xyStds = 1.0;
+    degStds = units::angle::radian_t(12_deg);
+  }
+  // 1 target farther away and estimated pose is close
+  else if (tagArea > 0.1 && poseDifference < 0.3_m)
+  {
+    xyStds = 2.0;
+    degStds = units::angle::radian_t(30_deg);
+  }
+  // conditions don't match to add a vision measurement
+  else
+  {
+    return;
+  }
+
+  m_container.drivetrain.SetVisionMeasurementStdDevs({xyStds, xyStds, degStds.value()});
+  m_container.drivetrain.AddVisionMeasurement(visionBotPose, visionTime);
+}
 
 #ifndef RUNNING_FRC_TESTS
 int main()

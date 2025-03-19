@@ -15,11 +15,11 @@ ElevatorSubsystem::ElevatorSubsystem()
           frc::TrapezoidProfile<units::turns>::Constraints(500_tps, 100_tr_per_s_sq))
 {
   auto &slot0Configs = m_elevatorConfig.Slot0;
-  slot0Configs.kS = 0.025;  // Add 0.1 V output to overcome static friction
-  slot0Configs.kV = 0.12; // A velocity target of 1 rps results in 0.12 V output
-  slot0Configs.kP = 0.025; // An error of 1 rps results in 0.11 V output
-  slot0Configs.kI = 0;    // no output for integrated error
-  slot0Configs.kD = 0;    // no output for error derivative
+  slot0Configs.kS = 0.01; // Add 0.1 V output to overcome static friction
+  slot0Configs.kV = 0.10;  // A velocity target of 1 rps results in 0.12 V output
+  slot0Configs.kP = 0.03; // An error of 1 rps results in 0.11 V output
+  slot0Configs.kI = 0;     // no output for integrated error
+  slot0Configs.kD = 0;     // no output for error derivative
 
   // auto &motionMagicConfigs = m_elevatorConfig.MotionMagic;
   // motionMagicConfigs.MotionMagicCruiseVelocity = 2500_tps; // Target cruise velocity of 80 rps
@@ -51,6 +51,7 @@ ElevatorSubsystem::ElevatorSubsystem()
 void ElevatorSubsystem::Periodic()
 {
   frc::SmartDashboard::PutNumber("Elevator Position", (m_elevatorMotorLeft.GetPosition().GetValueAsDouble()));
+  frc::SmartDashboard::PutNumber("Elevator Offset", offset);
 
   // m_elevatorMotorLeft.Set(profiledController.Calculate(units::angle::turn_t(m_elevatorMotorLeft.GetPosition().GetValueAsDouble())));
   // m_elevatorMotorRight.Set(profiledController.Calculate(units::angle::turn_t(m_elevatorMotorRight.GetPosition().GetValueAsDouble())));
@@ -64,26 +65,16 @@ void ElevatorSubsystem::SetElevatorState(ElevatorStates desiredState, bool algae
     setPoint = 0;
     break;
   case ElevatorStates::L1:
-    setPoint = L1;
+    setPoint = L1 + offset;
     break;
   case ElevatorStates::L2:
-    setPoint = L2;
-
-    if (algae)
-    {
-      setPoint += algaeOffset;
-    }
+    setPoint = L2 + offset;
     break;
   case ElevatorStates::L3:
-    setPoint = L3;
-
-    if (algae)
-    {
-      setPoint += algaeOffset;
-    }
+    setPoint = L3 + offset;
     break;
   case ElevatorStates::L4:
-    setPoint = L4;
+    setPoint = L4 + offset;
     break;
   case ElevatorStates::Barge:
     setPoint = Barge;
@@ -98,7 +89,7 @@ void ElevatorSubsystem::SetElevatorState(ElevatorStates desiredState, bool algae
     break;
   }
 
-  setPoint = std::clamp(setPoint, 0.0, 140.0);
+  setPoint = std::clamp(setPoint, 0.0, 135.0);
   ctre::phoenix6::controls::PositionDutyCycle desiredPos = ctre::phoenix6::controls::PositionDutyCycle{units::turn_t(setPoint)};
   desiredPos.WithEnableFOC(true);
   m_elevatorMotorLeft.SetControl(desiredPos);
@@ -114,5 +105,5 @@ void ElevatorSubsystem::Stop()
 
 bool ElevatorSubsystem::IsAtSetpoint()
 {
-  return setPoint == m_elevatorMotorLeft.GetPosition().GetValueAsDouble();
+  return (setPoint > (m_elevatorMotorLeft.GetPosition().GetValueAsDouble() - 5)) && (setPoint < (m_elevatorMotorLeft.GetPosition().GetValueAsDouble() + 5));
 }

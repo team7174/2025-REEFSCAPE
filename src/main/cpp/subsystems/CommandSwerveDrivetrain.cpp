@@ -25,7 +25,7 @@ void CommandSwerveDrivetrain::ConfigureAutoBuilder()
         },
         std::make_shared<pathplanner::PPHolonomicDriveController>(
             // PID constants for translation
-            pathplanner::PIDConstants{5.0, 0.0, 0.0},
+            pathplanner::PIDConstants{14, 0.0, 0.0},
             // PID constants for rotation
             pathplanner::PIDConstants{10.0, 0.0, 0.0}
         ),
@@ -60,7 +60,7 @@ void CommandSwerveDrivetrain::Periodic()
         }
     }
 
-    m_field.SetRobotPose(TunerSwerveDrivetrain::GetState().Pose);
+    m_field.SetRobotPose(GetRobotPose());
 
     ClosestAprilTag();
 }
@@ -77,6 +77,10 @@ void CommandSwerveDrivetrain::StartSimThread()
         UpdateSimState(deltaTime, frc::RobotController::GetBatteryVoltage());
     });
     m_simNotifier->StartPeriodic(kSimLoopPeriod);
+}
+
+frc::Pose2d CommandSwerveDrivetrain::GetRobotPose(){
+    return TunerSwerveDrivetrain::GetState().Pose;
 }
 
 int CommandSwerveDrivetrain::ClosestAprilTag()
@@ -138,7 +142,7 @@ frc2::CommandPtr CommandSwerveDrivetrain::AutoAlign(ScoringOptions options)
     targetPose = frc::Pose2d{units::meter_t(translatedX), units::meter_t(translatedY), frc::Rotation2d(tagPose2d.Rotation().Degrees() - 180_deg)};
 
     pathplanner::PathConstraints constraints = pathplanner::PathConstraints(
-        4.0_mps, 2_mps_sq,
+        3.0_mps, 2.0_mps_sq,
         540_deg_per_s, 720_deg_per_s_sq);
 
     // Since AutoBuilder is configured, we can use it to build pathfinding commands

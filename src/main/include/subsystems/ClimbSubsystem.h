@@ -19,24 +19,18 @@ class ClimbSubsystem : public frc2::SubsystemBase {
   void Periodic() override;
 
   enum ClimbStates {
-    in,
-    out,
-    hold
+    in = 0,
+    out = 450,
+    hold = 0
   };
 
   void SetClimbState(ClimbStates DesiredClimbState);
   void Stop();
   bool IsAtSetpoint();
 
-  //ALL WRONG - setpoint needs to be calculated
-  units::angle::turn_t InPos = units::angle::turn_t(0);
-  units::angle::turn_t OutPos = units::angle::turn_t(5);
-  units::angle::turn_t setPoint = units::angle::turn_t(0);
-
   double holdVal = 0;
-
-  ctre::phoenix6::controls::PositionDutyCycle desiredPos = ctre::phoenix6::controls::PositionDutyCycle{units::turn_t(0)};
-
+  
+  double setPoint;
 
  private:
   ctre::phoenix6::hardware::TalonFX m_climbMotor;

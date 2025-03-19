@@ -16,11 +16,12 @@
 #include "subsystems/IntakeSubsystem.h"
 #include "subsystems/ElevatorSubsystem.h"
 #include "subsystems/CANdleSystem.h"
+#include "subsystems/ClimbSubsystem.h"
 
 class RobotContainer {
 private:
     units::meters_per_second_t MaxSpeed = TunerConstants::kSpeedAt12Volts; // kSpeedAt12Volts desired top speed
-    units::radians_per_second_t MaxAngularRate = 2.0_tps; // 3/4 of a rotation per second max angular velocity
+    units::radians_per_second_t MaxAngularRate = 0.5_tps; // 3/4 of a rotation per second max angular velocity
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     swerve::requests::FieldCentric drive = swerve::requests::FieldCentric{}
@@ -40,6 +41,7 @@ public:
 
     IntakeSubsystem m_intakeSubsystem;
     ElevatorSubsystem m_elevatorSubsystem;
+    ClimbSubsystem m_climbSubsystem;
     CANdleSystem m_ledSystem;
 
 

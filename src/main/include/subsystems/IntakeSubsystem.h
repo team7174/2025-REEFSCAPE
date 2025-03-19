@@ -45,10 +45,12 @@ public:
   IntakeStates currentState = IntakeStates::coralIntake;
 
   void rumbleController();
+
+  void setAlgaePivot(bool algae);
   // private means only accessable in that respective file
 private:
   rev::spark::SparkFlex m_coralIntakeMotor;
-  rev::spark::SparkFlex m_algaeIntakeMotor;
+  //rev::spark::SparkFlex m_algaeIntakeMotor;
   rev::spark::SparkFlex m_algaePivotMotor;
   rev::spark::SparkClosedLoopController m_algaePivotPID;
   rev::spark::SparkBaseConfig m_algaePivotConfig;

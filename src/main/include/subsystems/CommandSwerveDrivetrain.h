@@ -301,6 +301,8 @@ namespace subsystems
 
         int ClosestAprilTag();
 
+        frc::Pose2d GetRobotPose();
+
     private:
         void ConfigureAutoBuilder();
         void StartSimThread();

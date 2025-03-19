@@ -17,8 +17,8 @@ class TunerConstants {
     // The steer motor uses any SwerveModule.SteerRequestType control request with the
     // output type specified by SwerveModuleConstants::SteerMotorClosedLoopOutput
     static constexpr configs::Slot0Configs steerGains = configs::Slot0Configs{}
-        .WithKP(20).WithKI(0).WithKD(0)
-        .WithKS(0.1).WithKV(1.5).WithKA(0)
+        .WithKP(60).WithKI(0).WithKD(0.5)
+        .WithKS(0.1).WithKV(1.15).WithKA(0)
         .WithStaticFeedforwardSign(signals::StaticFeedforwardSignValue::UseClosedLoopSign);
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants::DriveMotorClosedLoopOutput
@@ -44,7 +44,7 @@ class TunerConstants {
 
     // The stator current at which the wheels start to slip;
     // This needs to be tuned to your individual robot
-    static constexpr units::ampere_t kSlipCurrent = 120_A;
+    static constexpr units::ampere_t kSlipCurrent = 80_A;
 
     // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
     // Some configs will be overwritten; check the `With*InitialConfigs()` API documentation.
@@ -54,7 +54,7 @@ class TunerConstants {
             configs::CurrentLimitsConfigs{}
                 // Swerve azimuth does not require much torque output, so we can set a relatively low
                 // stator current limit to help avoid brownouts without impacting performance.
-                .WithStatorCurrentLimit(60_A)
+                .WithStatorCurrentLimit(40_A)
                 .WithStatorCurrentLimitEnable(true)
         );
 
@@ -71,7 +71,7 @@ public:
 
     // Theoretical free speed (m/s) at 12 V applied output;
     // This needs to be tuned to your individual robot
-    static constexpr units::meters_per_second_t kSpeedAt12Volts = 5.63_mps;
+    static constexpr units::meters_per_second_t kSpeedAt12Volts = 3.5_mps;
 
 private:
     // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
