@@ -183,7 +183,7 @@ void RobotContainer::ConfigureBindings()
                                  
   frc2::Trigger{[this]()
                 { return primaryController.GetLeftBumperButton(); }}
-      .OnTrue(frc2::cmd::RunOnce([this] { MaxSpeed = 1_mps; })).OnFalse(frc2::cmd::RunOnce([this] { MaxSpeed = 2.5_mps; }));
+      .OnTrue(frc2::cmd::RunOnce([this] { MaxSpeed = 2.0_mps; })).OnFalse(frc2::cmd::RunOnce([this] { MaxSpeed = 4.0_mps; }));
 
   frc2::Trigger{[this]()
                 { return primaryController.GetBButton(); }}
