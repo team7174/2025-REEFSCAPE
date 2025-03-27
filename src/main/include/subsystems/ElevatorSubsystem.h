@@ -40,7 +40,7 @@ public:
 
   double setPoint ;
 
-  int offset = 0;
+  int offset = 5;
 
 private:
   ctre::phoenix6::hardware::TalonFX m_elevatorMotorLeft;

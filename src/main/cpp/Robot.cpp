@@ -26,8 +26,11 @@ void Robot::RobotPeriodic()
    * This example is sufficient to show that vision integration is possible, though exact implementation
    * of how to use vision should be tuned per-robot and to the team's specification.
    */
-  LimelightPose();
-  
+
+  if (LimelightPose("limelight-threeg") == 0) {
+    LimelightPose("limnelight-three");
+  }
+
   if (kUseLimelight)
   {
     auto const driveState = m_container.drivetrain.GetState();
@@ -40,50 +43,30 @@ void Robot::RobotPeriodic()
     {
       m_container.drivetrain.AddVisionMeasurement(llMeasurement->pose, llMeasurement->timestampSeconds);
     }
-    if (llMeasurement->pose.X() == 8.7741252_m)
+    else
     {
-      LimelightHelpers::SetRobotOrientation("limelight-threeg", heading.value(), 0, 0, 0, 0, 0);
-      auto llMeasurement = LimelightHelpers::getBotPoseEstimate_wpiBlue("limelight-threeg");
-      if (llMeasurement && llMeasurement->tagCount > 0 && units::math::abs(omega) < 2_tps)
-      {
-        m_container.drivetrain.AddVisionMeasurement(llMeasurement->pose, llMeasurement->timestampSeconds);
-      }
+      LimelightPose("limelight-threeg");
     }
 
-    // LimelightHelpers::SetRobotOrientation("limelight-three", heading.value(), 0, 0, 0, 0, 0);
-    // auto llMeasurement3 = LimelightHelpers::getBotPoseEstimate_wpiBlue_MegaTag2("limelight-three");
-    // if (llMeasurement3 && llMeasurement3->tagCount > 0 && units::math::abs(omega) < 2_tps && llMeasurement3->pose.X() != 8.7741252_m)
-    // {
-    //   m_container.drivetrain.AddVisionMeasurement(llMeasurement3->pose, llMeasurement3->timestampSeconds);
-    // }
+    if (llMeasurement->tagCount == 0)
+    {
+      LimelightHelpers::SetRobotOrientation("limelight-three", heading.value(), 0, 0, 0, 0, 0);
+      auto llMeasurement3 = LimelightHelpers::getBotPoseEstimate_wpiBlue_MegaTag2("limelight-three");
+      if (llMeasurement3 && llMeasurement3->tagCount > 0 && units::math::abs(omega) < 2_tps && llMeasurement3->pose.X() != 8.7741252_m)
+      {
+        m_container.drivetrain.AddVisionMeasurement(llMeasurement3->pose, llMeasurement3->timestampSeconds);
+      }
+      else
+      {
+        LimelightPose("limelight-three");
+      }
+    }
   }
 }
 
 void Robot::DisabledInit() {}
 
-void Robot::DisabledPeriodic()
-{
-  if (kUseLimelight)
-  {
-    auto const driveState = m_container.drivetrain.GetState();
-    auto const heading = driveState.Pose.Rotation().Degrees();
-    auto const omega = driveState.Speeds.omega;
-
-    LimelightHelpers::SetRobotOrientation("limelight-threeg", heading.value(), 0, 0, 0, 0, 0);
-    auto llMeasurement = LimelightHelpers::getBotPoseEstimate_wpiBlue("limelight-threeg");
-    if (llMeasurement && llMeasurement->tagCount > 0 && units::math::abs(omega) < 2_tps)
-    {
-      m_container.drivetrain.AddVisionMeasurement(llMeasurement->pose, llMeasurement->timestampSeconds);
-    }
-
-    // LimelightHelpers::SetRobotOrientation("limelight-three", heading.value(), 0, 0, 0, 0, 0);
-    // auto llMeasurement3 = LimelightHelpers::getBotPoseEstimate_wpiBlue("limelight-three");
-    // if (llMeasurement3 && llMeasurement3->tagCount > 0 && units::math::abs(omega) < 2_tps)
-    // {
-    //   m_container.drivetrain.AddVisionMeasurement(llMeasurement3->pose, llMeasurement3->timestampSeconds);
-    // }
-  }
-}
+void Robot::DisabledPeriodic() {}
 
 void Robot::DisabledExit() {}
 
@@ -123,19 +106,19 @@ void Robot::TestPeriodic() {}
 
 void Robot::TestExit() {}
 
-void Robot::LimelightPose()
+int Robot::LimelightPose(std::string llname)
 {
   double xyStds;
   units::angle::radian_t degStds;
 
-  std::shared_ptr<nt::NetworkTable> ll = nt::NetworkTableInstance::GetDefault().GetTable("limelight-threeg");
+  std::shared_ptr<nt::NetworkTable> ll = nt::NetworkTableInstance::GetDefault().GetTable(llname);
   auto llBotPoseEntry = ll->GetEntry("botpose_wpiblue");
   auto llBotPose = llBotPoseEntry.GetDoubleArray({});
 
   // weirdness
   if (llBotPose.size() < 6)
   {
-    return;
+    return 0;
   }
   frc::Pose2d visionBotPose = frc::Pose2d(
       frc::Translation2d(units::length::meter_t(llBotPose[0]), units::length::meter_t(llBotPose[1])),
@@ -168,14 +151,14 @@ void Robot::LimelightPose()
     xyStds = 2.0;
     degStds = units::angle::radian_t(30_deg);
   }
-  // conditions don't match to add a vision measurement
-  else
-  {
-    return;
+  else {
+    return 0;
   }
 
   m_container.drivetrain.SetVisionMeasurementStdDevs({xyStds, xyStds, degStds.value()});
   m_container.drivetrain.AddVisionMeasurement(visionBotPose, visionTime);
+
+  return tagCount;
 }
 
 #ifndef RUNNING_FRC_TESTS

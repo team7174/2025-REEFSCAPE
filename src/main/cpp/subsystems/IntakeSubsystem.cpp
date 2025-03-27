@@ -13,9 +13,9 @@ IntakeSubsystem::IntakeSubsystem(frc::XboxController *primaryController)
       .SetFeedbackSensor(rev::spark::ClosedLoopConfig::FeedbackSensor::kPrimaryEncoder)
       // Set PID values for position control. We don't need to pass a closed
       // loop slot, as it will default to slot 0.
-      .P(0.1)
+      .P(0.2)
       .I(0)
-      .D(0)
+      .D(0.1)
       .OutputRange(-1, 1)
       // Set PID values for velocity control in slot 1
       .P(0.0001, rev::spark::ClosedLoopSlot::kSlot1)

@@ -12,6 +12,7 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 
 #include "RobotContainer.h"
+#include <string>
 
 class Robot : public frc::TimedRobot
 {
@@ -31,7 +32,7 @@ public:
   void TestPeriodic() override;
   void TestExit() override;
 
-  void LimelightPose();
+  int LimelightPose(std::string llname);
 
 private:
   frc2::Command *m_autonomousCommand;

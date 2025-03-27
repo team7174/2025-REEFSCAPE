@@ -33,7 +33,7 @@ RobotContainer::RobotContainer()
                                           m_intakeSubsystem.SetIntakeState(IntakeSubsystem::IntakeStates::coralIntake); }));
 
   auto waitIntake = frc2::cmd::WaitUntil([this]
-                           { return  (m_intakeSubsystem.FirstBeamBreakTriggered() || m_intakeSubsystem.SecondBeamBreakTriggered()); }).WithTimeout(2_s);
+                           { return  (m_intakeSubsystem.FirstBeamBreakTriggered() || m_intakeSubsystem.SecondBeamBreakTriggered()); }).WithTimeout(3_s);
 
   pathplanner::NamedCommands::registerCommand("L4Elevator", std::move(L4Elevator));
   pathplanner::NamedCommands::registerCommand("Score", std::move(Score));
@@ -62,10 +62,10 @@ void RobotContainer::ConfigureBindings()
                 { return primaryController.GetAButton(); }}
       .WhileTrue(drivetrain.ApplyRequest([this]() -> auto &&
                                          { return brake; }));
-  frc2::Trigger{[this]
-                { return primaryController.GetBButton(); }}
-      .WhileTrue(drivetrain.ApplyRequest([this]() -> auto &&
-                                         { return point.WithModuleDirection(frc::Rotation2d{-primaryController.GetLeftY(), -primaryController.GetLeftX()}); }));
+  // frc2::Trigger{[this]
+  //               { return primaryController.GetBButton(); }}
+  //     .WhileTrue(drivetrain.ApplyRequest([this]() -> auto &&
+  //                                        { return point.WithModuleDirection(frc::Rotation2d{-primaryController.GetLeftY(), -primaryController.GetLeftX()}); }));
 
   // Run SysId routines when holding back/start and X/Y.
   // Note that each routine should be run exactly once in a single log.
@@ -183,7 +183,7 @@ void RobotContainer::ConfigureBindings()
                                  
   frc2::Trigger{[this]()
                 { return primaryController.GetLeftBumperButton(); }}
-      .OnTrue(frc2::cmd::RunOnce([this] { MaxSpeed = 2.0_mps; })).OnFalse(frc2::cmd::RunOnce([this] { MaxSpeed = 4.0_mps; }));
+      .OnTrue(frc2::cmd::RunOnce([this] { MaxSpeed = 2.0_mps; })).OnFalse(frc2::cmd::RunOnce([this] { MaxSpeed = 3.0_mps; }));
 
   frc2::Trigger{[this]()
                 { return primaryController.GetBButton(); }}
