@@ -114,7 +114,7 @@ void IntakeSubsystem::SetIntakeState(IntakeStates desiredIntakeState)
     break;
   case IntakeStates::coralScore:
     algaeSpeed = 0.0;
-    coralSpeed = 0.5;
+    coralSpeed = 0.4;
     break;
   default:
     algaeSpeed = 0.0;

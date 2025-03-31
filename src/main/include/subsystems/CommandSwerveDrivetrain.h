@@ -297,7 +297,8 @@ namespace subsystems
         frc::Pose2d targetPose = frc::Pose2d();
 
         // Auto align function that returns robot pose based on April Tag ID
-        frc2::CommandPtr AutoAlign(ScoringOptions option);
+        frc2::CommandPtr AutoAlignLeft();
+        frc2::CommandPtr AutoAlignRight();
 
         int ClosestAprilTag();
 

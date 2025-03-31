@@ -97,19 +97,19 @@ void RobotContainer::ConfigureBindings()
                 { return primaryController.GetRightTriggerAxis() > 0.5; })
       .OnTrue(frc2::cmd::RunOnce([this]
                                  {
-        auto command = drivetrain.AutoAlign(subsystems::CommandSwerveDrivetrain::ScoringOptions::right).Unwrap();
+        auto command = drivetrain.AutoAlignRight().WithTimeout(units::second_t(5)).Unwrap();
         if (command) {  // Make sure the command is valid
             frc2::CommandScheduler::GetInstance().Schedule(command.release());
-        } }));
+        } })).Debounce(0.5_s);
 
   frc2::Trigger([this]
                 { return primaryController.GetLeftTriggerAxis() > 0.5; })
       .OnTrue(frc2::cmd::RunOnce([this]
                                  {
-        auto command = drivetrain.AutoAlign(subsystems::CommandSwerveDrivetrain::ScoringOptions::left).Unwrap();
+        auto command = drivetrain.AutoAlignLeft().WithTimeout(units::second_t(5)).Unwrap();
         if (command) {  // Make sure the command is valid
             frc2::CommandScheduler::GetInstance().Schedule(command.release());
-        } }));
+        } })).Debounce(0.5_s);
 
   frc2::Trigger{[this]()
                 { return secondaryController.GetRawButton(10) > 0.5 && !CoralMode; }}
@@ -183,7 +183,7 @@ void RobotContainer::ConfigureBindings()
                                  
   frc2::Trigger{[this]()
                 { return primaryController.GetLeftBumperButton(); }}
-      .OnTrue(frc2::cmd::RunOnce([this] { MaxSpeed = 2.0_mps; })).OnFalse(frc2::cmd::RunOnce([this] { MaxSpeed = 3.0_mps; }));
+      .OnTrue(frc2::cmd::RunOnce([this] { MaxSpeed = 2.0_mps; })).OnFalse(frc2::cmd::RunOnce([this] { MaxSpeed = 4.5_mps; }));
 
   frc2::Trigger{[this]()
                 { return primaryController.GetBButton(); }}

@@ -14,10 +14,10 @@ class ElevatorSubsystem : public frc2::SubsystemBase
 public:
   enum ElevatorStates
   {
-    L1 = 25,
-    L2 = 35,
-    L3 = 65,
-    L4 = 110,
+    L1 = 30,
+    L2 = 41,
+    L3 = 70,
+    L4 = 115,
     Barge = 135,
     stow = 0,
     hold
@@ -40,7 +40,7 @@ public:
 
   double setPoint ;
 
-  int offset = 5;
+  int offset = 0;
 
 private:
   ctre::phoenix6::hardware::TalonFX m_elevatorMotorLeft;
