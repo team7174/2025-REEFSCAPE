@@ -1,15 +1,16 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <subsystems/IntakeSubsystem.h>
 
-IntakeSubsystem::IntakeSubsystem(frc::XboxController *primaryController)
+IntakeSubsystem::IntakeSubsystem(frc::XboxController *primaryController, CANdleSystem *LEDSubsystem)
     : m_coralIntakeMotor(IntakeConstants::coralIntakeID, rev::spark::SparkFlex::MotorType::kBrushless), // Replace with your TalonFX device ID
                                                                                                         // m_algaeIntakeMotor(IntakeConstants::algaeIntakeID, rev::spark::SparkFlex::MotorType::kBrushless),
       m_algaePivotMotor(IntakeConstants::algaePivotID, rev::spark::SparkFlex::MotorType::kBrushless),
       m_algaePivotPID(m_algaePivotMotor.GetClosedLoopController()) // Replace with your TalonFX device ID
 {
   m_driveController = primaryController;
+  m_LEDSubsystem = LEDSubsystem;
 
-    m_algaePivotConfig.closedLoop
+  m_algaePivotConfig.closedLoop
       .SetFeedbackSensor(rev::spark::ClosedLoopConfig::FeedbackSensor::kPrimaryEncoder)
       // Set PID values for position control. We don't need to pass a closed
       // loop slot, as it will default to slot 0.
@@ -30,7 +31,7 @@ IntakeSubsystem::IntakeSubsystem(frc::XboxController *primaryController)
                                rev::spark::SparkBase::PersistMode::kPersistParameters);
 
   m_algaePivotMotor.Configure(m_algaePivotConfig, rev::spark::SparkBase::ResetMode::kResetSafeParameters,
-                rev::spark::SparkBase::PersistMode::kPersistParameters);
+                              rev::spark::SparkBase::PersistMode::kPersistParameters);
 
   m_algaePivotMotor.GetEncoder().SetPosition(0);
 
@@ -111,6 +112,11 @@ void IntakeSubsystem::SetIntakeState(IntakeStates desiredIntakeState)
   case IntakeStates::coralIntake:
     algaeSpeed = 0.0;
     coralSpeed = 0.75;
+    m_LEDSubsystem->UpdateSetLed([]()
+                                 { return 255.0; }, []()
+                                 { return 0.0; }, []()
+                                 { return 0.0; }, []()
+                                 { return 1.0; });
     break;
   case IntakeStates::coralScore:
     algaeSpeed = 0.0;
@@ -128,6 +134,12 @@ void IntakeSubsystem::rumbleController()
   if ((frc::Timer::GetFPGATimestamp() - intakeTimeStamp) < 1_s)
   {
     m_driveController->SetRumble(frc::GenericHID::RumbleType::kBothRumble, 1.0);
+
+    m_LEDSubsystem->UpdateSetLed([]()
+                                 { return 255.0; }, []()
+                                 { return 80.0; }, []()
+                                 { return 0.0; }, []()
+                                 { return 1.0; });
   }
   else
   {
@@ -140,11 +152,13 @@ void IntakeSubsystem::setAlgaePivot(bool algae)
   if (algae)
   {
     m_algaePivotPID.SetReference(2,
-                                        rev::spark::SparkBase::ControlType::kPosition,
-                                        rev::spark::ClosedLoopSlot::kSlot0);  }
+                                 rev::spark::SparkBase::ControlType::kPosition,
+                                 rev::spark::ClosedLoopSlot::kSlot0);
+  }
   else
   {
     m_algaePivotPID.SetReference(0,
-                                        rev::spark::SparkBase::ControlType::kPosition,
-                                        rev::spark::ClosedLoopSlot::kSlot0);  }
+                                 rev::spark::SparkBase::ControlType::kPosition,
+                                 rev::spark::ClosedLoopSlot::kSlot0);
+  }
 }

@@ -10,10 +10,8 @@
 #include "Constants.h"
 
 class CANdleSystem : public frc2::SubsystemBase {
- public:
-
-    ctre::phoenix::led::CANdle m_candle {8};
-    int LedCount = 400;
+    ctre::phoenix::led::CANdle m_candle {8, ""};
+    int LedCount = 260;
 
     ctre::phoenix::led::Animation *m_toAnimate = NULL;
 
@@ -33,6 +31,8 @@ class CANdleSystem : public frc2::SubsystemBase {
         SetAll
     };
     AnimationTypes m_currentAnimation;
+
+ public:
 
     CANdleSystem();
     ~CANdleSystem();

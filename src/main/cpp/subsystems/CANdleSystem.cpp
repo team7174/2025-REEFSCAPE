@@ -1,4 +1,3 @@
-
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
@@ -16,30 +15,36 @@
 
 using namespace ctre::phoenix::led;
 
-CANdleSystem::CANdleSystem() {
-    ChangeAnimation(AnimationTypes::Rainbow);
-    CANdleConfiguration configAll {};
-    configAll.statusLedOffWhenActive = true;
+CANdleSystem::CANdleSystem()
+{
+    ChangeAnimation(AnimationTypes::SetAll);
+    CANdleConfiguration configAll{};
+    configAll.statusLedOffWhenActive = false;
     configAll.disableWhenLOS = false;
     configAll.stripType = LEDStripType::GRB;
-    configAll.brightnessScalar = 0.1;
+    configAll.brightnessScalar = 1.0;
     configAll.vBatOutputMode = VBatOutputMode::Modulated;
     m_candle.ConfigAllSettings(configAll, 100);
 }
 
-CANdleSystem::~CANdleSystem() {
-    if(m_toAnimate != NULL) delete m_toAnimate;
+CANdleSystem::~CANdleSystem()
+{
+    if (m_toAnimate != NULL)
+        delete m_toAnimate;
 }
 
-void CANdleSystem::SetColors() {
+void CANdleSystem::SetColors()
+{
     ChangeAnimation(AnimationTypes::SetAll);
 }
 
-void CANdleSystem::UpdateSetLed(std::function<double()> r, std::function<double()> g, std::function<double()> b, std::function<double()> modulatedVbat) {
-    m_r = r();
-    m_g = g();
+void CANdleSystem::UpdateSetLed(std::function<double()> r, std::function<double()> g, std::function<double()> b, std::function<double()> modulatedVbat)
+{
+    m_r = g();
+    m_g = r();
     m_b = b();
     m_modulatedOut = modulatedVbat();
+    ChangeAnimation(AnimationTypes::SetAll);
 }
 
 /* Wrappers so we can access the CANdle from the subsystem */
@@ -53,58 +58,29 @@ void CANdleSystem::ConfigLos(bool disableWhenLos) { m_candle.ConfigLOSBehavior(d
 void CANdleSystem::ConfigLedType(LEDStripType type) { m_candle.ConfigLEDType(type, 0); }
 void CANdleSystem::ConfigStatusLedBehavior(bool offWhenActive) { m_candle.ConfigStatusLedState(offWhenActive, 0); }
 
-void CANdleSystem::ChangeAnimation(AnimationTypes toChange) {
+void CANdleSystem::ChangeAnimation(AnimationTypes toChange)
+{
     m_currentAnimation = toChange;
-    
-    if(m_toAnimate != NULL) delete m_toAnimate;
 
-    switch(toChange)
+    if (m_toAnimate != NULL)
+        delete m_toAnimate;
+
+    switch (toChange)
     {
-        case ColorFlow:
-            m_toAnimate = new ColorFlowAnimation(128, 20, 70, 0, 0.7, LedCount, ColorFlowAnimation::Direction::Forward);
-            break;
-        case Fire:
-            m_toAnimate = new FireAnimation(0.5, 0.7, LedCount, 0.7, 0.5);
-            break;
-        case Larson:
-            m_toAnimate = new LarsonAnimation(0, 255, 46, 0, 1, LedCount, LarsonAnimation::BounceMode::Front, 3);
-            break;
-        case Rainbow:
-            m_toAnimate = new RainbowAnimation(1, 0.1, LedCount);
-            break;
-        case RgbFade:
-            m_toAnimate = new RgbFadeAnimation(0.7, 0.4, LedCount);
-            break;
-        case SingleFade:
-            m_toAnimate = new SingleFadeAnimation(50, 2, 200, 0, 0.5, LedCount);
-            break;
-        case Strobe:
-            m_toAnimate = new StrobeAnimation(240, 10, 180, 0, 98.0 / 256.0, LedCount);
-            break;
-        case Twinkle:
-            m_toAnimate = new TwinkleAnimation(30, 70, 60, 0, 0.4, LedCount, TwinkleAnimation::TwinklePercent::Percent6);
-            break;
-        case TwinkleOff:
-            m_toAnimate = new TwinkleOffAnimation(70, 90, 175, 0, 0.8, LedCount, TwinkleOffAnimation::TwinkleOffPercent::Percent100);
-            break;
-        default:
-        case SetAll:
-            m_toAnimate = NULL;
-            break;
+    default:
+    case SetAll:
+        m_toAnimate = NULL;
+        break;
     }
-    //std::cout << "Changed to " << std::to_string(m_currentAnimation) << std::endl;
 }
 
-void CANdleSystem::Periodic() {
-    // This method will be called once per scheduler run
-    if(m_toAnimate == NULL) {
-        m_candle.SetLEDs(m_r, m_g, m_b);
-    } else {
-        m_candle.Animate(*m_toAnimate);
-    }
+void CANdleSystem::Periodic()
+{
+    m_candle.SetLEDs(m_r, m_g, m_b);
     m_candle.ModulateVBatOutput(m_modulatedOut);
 }
 
-void CANdleSystem::SimulationPeriodic() {
+void CANdleSystem::SimulationPeriodic()
+{
     // This method will be called once per scheduler run during simulation
 }
