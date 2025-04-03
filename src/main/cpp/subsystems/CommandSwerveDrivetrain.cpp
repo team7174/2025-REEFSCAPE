@@ -93,7 +93,7 @@ int CommandSwerveDrivetrain::ClosestAprilTag()
     // Use the robot pose and return the closest AprilTag on a REEF
     std::vector<int> tagIDs = {17, 18, 19, 20, 21, 22};
 
-    if (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kRed)
+    if (frc::DriverStation::Alliance::kRed)
     {
         tagIDs = {6, 7, 8, 9, 10, 11};
     }

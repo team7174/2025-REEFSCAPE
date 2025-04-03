@@ -11,16 +11,14 @@
 
 #include "Constants.h"
 #include "subsystems/ElevatorSubsystem.h"
-#include <subsystems/CANdleSystem.h>
 
 class IntakeSubsystem : public frc2::SubsystemBase
 {
 public:
 
   frc::XboxController *m_driveController;
-  CANdleSystem *m_LEDSubsystem;
 
-  IntakeSubsystem(frc::XboxController *, CANdleSystem *);
+  IntakeSubsystem(frc::XboxController *);
   ElevatorSubsystem *m_elevatorSubsystem;
 
   void Periodic() override;

@@ -16,6 +16,7 @@ namespace IntakeConstants
 {
     // ALL WRONG NUMBERS
     constexpr int coralIntakeID = 52;
+    constexpr int algaeIntakeID = 53;
     constexpr int algaePivotID = 54;
     constexpr int firstIntakeBeamBreakID = 0;
     constexpr int secondIntakeBeamBreakID = 1;
@@ -26,7 +27,6 @@ namespace IntakeConstants
 namespace ClimbConstants
 {
     constexpr int climbID = 62;
-    constexpr int algaeIntakeID = 59;
 } // namespace ClimbConstants
 
 namespace ScoringConstants
