@@ -13,13 +13,14 @@
 #include <frc2/command/DeferredCommand.h>
 
 RobotContainer::RobotContainer()
-    : m_intakeSubsystem(&primaryController),
+    : m_intakeSubsystem(&primaryController, &m_ledSystem),
       m_elevatorSubsystem(),
       m_climbSubsystem()
 {
   auto L4Elevator = frc2::cmd::RunOnce([this]
-                         { m_elevatorSubsystem.SetElevatorState(ElevatorSubsystem::ElevatorStates::L4); }).OnlyIf([this]
-                           { return  (m_intakeSubsystem.FirstBeamBreakTriggered() || m_intakeSubsystem.SecondBeamBreakTriggered()); });
+                                       { m_elevatorSubsystem.SetElevatorState(ElevatorSubsystem::ElevatorStates::L4); })
+                        .OnlyIf([this]
+                                { return (m_intakeSubsystem.FirstBeamBreakTriggered() || m_intakeSubsystem.SecondBeamBreakTriggered()); });
 
   auto Score = frc2::cmd::Sequence(
       frc2::cmd::RunOnce([this]
@@ -33,12 +34,13 @@ RobotContainer::RobotContainer()
                                           m_intakeSubsystem.SetIntakeState(IntakeSubsystem::IntakeStates::coralIntake); }));
 
   auto waitIntake = frc2::cmd::WaitUntil([this]
-                           { return  (m_intakeSubsystem.FirstBeamBreakTriggered() || m_intakeSubsystem.SecondBeamBreakTriggered()); }).WithTimeout(3_s);
+                                         { return (m_intakeSubsystem.FirstBeamBreakTriggered() || m_intakeSubsystem.SecondBeamBreakTriggered()); })
+                        .WithTimeout(1.5_s);
 
   pathplanner::NamedCommands::registerCommand("L4Elevator", std::move(L4Elevator));
   pathplanner::NamedCommands::registerCommand("Score", std::move(Score));
   pathplanner::NamedCommands::registerCommand("WaitIntake", std::move(waitIntake));
-  
+
   autoChooser = pathplanner::AutoBuilder::buildAutoChooser("Middle");
   frc::SmartDashboard::PutData("Auto Mode", &autoChooser);
 
@@ -58,10 +60,10 @@ void RobotContainer::ConfigureBindings()
                                     .WithRotationalRate(-primaryController.GetRightX() * MaxAngularRate); // Drive counterclockwise with negative X (left)
                               }));
 
-  frc2::Trigger{[this]
-                { return primaryController.GetAButton(); }}
-      .WhileTrue(drivetrain.ApplyRequest([this]() -> auto &&
-                                         { return brake; }));
+  // frc2::Trigger{[this]
+  //               { return primaryController.GetAButton(); }}
+  //     .WhileTrue(drivetrain.ApplyRequest([this]() -> auto &&
+  //                                        { return brake; }));
   // frc2::Trigger{[this]
   //               { return primaryController.GetBButton(); }}
   //     .WhileTrue(drivetrain.ApplyRequest([this]() -> auto &&
@@ -91,25 +93,59 @@ void RobotContainer::ConfigureBindings()
   drivetrain.RegisterTelemetry([this](auto const &state)
                                { logger.Telemeterize(state); });
 
-  // Assuming primaryController is your joystick or gamepad object
-  // Assuming primaryController is a joystick and rightTriggerAxis is an axis number
-  frc2::Trigger([this]
-                { return primaryController.GetRightTriggerAxis() > 0.5; })
-      .OnTrue(frc2::cmd::RunOnce([this]
-                                 {
-        auto command = drivetrain.AutoAlignRight().WithTimeout(units::second_t(5)).Unwrap();
-        if (command) {  // Make sure the command is valid
-            frc2::CommandScheduler::GetInstance().Schedule(command.release());
-        } })).Debounce(0.5_s);
+// Left Trigger for AutoAlignLeft
+frc2::Trigger([this] { return primaryController.GetLeftTriggerAxis() > 0.5; })
+    .OnTrue(frc2::cmd::RunOnce([this] {
+        // m_ledSystem.UpdateSetLed([]()
+        //                          { return 0.0; }, []()
+        //                          { return 0.0; }, []()
+        //                          { return 255.0; }, []()
+        //                          { return 1.0; });
+        // Cancel any existing auto-align command
+        if (autoAlignCommand && autoAlignCommand->IsScheduled()) {
+            autoAlignCommand->Cancel();
+        }
+        // Assign and schedule the new AutoAlignLeft command
+        autoAlignCommand = drivetrain.AutoAlignLeft();
+        if (autoAlignCommand) {
+            frc2::CommandScheduler::GetInstance().Schedule(autoAlignCommand->get());
+        }
+    }))
+    .OnFalse(frc2::cmd::RunOnce([this] {
+        // Optional: Handle what happens when the button is released
+        if (autoAlignCommand && autoAlignCommand->IsScheduled()) {
+            autoAlignCommand->Cancel();
+        }
+        autoAlignCommand.reset();
+        // m_intakeSubsystem.SetIntakeState(IntakeSubsystem::IntakeStates::coralIntake);
+    }));
 
-  frc2::Trigger([this]
-                { return primaryController.GetLeftTriggerAxis() > 0.5; })
-      .OnTrue(frc2::cmd::RunOnce([this]
-                                 {
-        auto command = drivetrain.AutoAlignLeft().WithTimeout(units::second_t(5)).Unwrap();
-        if (command) {  // Make sure the command is valid
-            frc2::CommandScheduler::GetInstance().Schedule(command.release());
-        } })).Debounce(0.5_s);
+// Right Trigger for AutoAlignRight
+frc2::Trigger([this] { return primaryController.GetRightTriggerAxis() > 0.5; })
+    .OnTrue(frc2::cmd::RunOnce([this] {
+        // m_ledSystem.UpdateSetLed([]()
+        //                          { return 0.0; }, []()
+        //                          { return 0.0; }, []()
+        //                          { return 255.0; }, []()
+        //                          { return 1.0; });
+        // Cancel any existing auto-align command
+        if (autoAlignCommand && autoAlignCommand->IsScheduled()) {
+            autoAlignCommand->Cancel();
+        }
+        // Assign and schedule the new AutoAlignRight command
+        autoAlignCommand = drivetrain.AutoAlignRight();
+        if (autoAlignCommand) {
+            frc2::CommandScheduler::GetInstance().Schedule(autoAlignCommand->get());
+        }
+    }))
+    .OnFalse(frc2::cmd::RunOnce([this] {
+        // Optional: Handle what happens when the button is released
+        if (autoAlignCommand && autoAlignCommand->IsScheduled()) {
+            autoAlignCommand->Cancel();
+        }
+        autoAlignCommand.reset();
+        // m_intakeSubsystem.SetIntakeState(IntakeSubsystem::IntakeStates::coralIntake);
+    }));
 
   frc2::Trigger{[this]()
                 { return secondaryController.GetRawButton(10) > 0.5 && !CoralMode; }}
@@ -180,14 +216,19 @@ void RobotContainer::ConfigureBindings()
       .OnTrue(frc2::cmd::RunOnce([this]
                                  { m_elevatorSubsystem.offset = m_elevatorSubsystem.offset - 5; }));
 
-                                 
   frc2::Trigger{[this]()
                 { return primaryController.GetLeftBumperButton(); }}
-      .OnTrue(frc2::cmd::RunOnce([this] { MaxSpeed = 2.0_mps; })).OnFalse(frc2::cmd::RunOnce([this] { MaxSpeed = 4.5_mps; }));
+      .OnTrue(frc2::cmd::RunOnce([this]
+                                 { MaxSpeed = 2.0_mps; }))
+      .OnFalse(frc2::cmd::RunOnce([this]
+                                  { MaxSpeed = 4.0_mps; }));
 
   frc2::Trigger{[this]()
                 { return primaryController.GetBButton(); }}
-      .OnTrue(frc2::cmd::RunOnce([this] { m_intakeSubsystem.setAlgaePivot(true); })).OnFalse(frc2::cmd::RunOnce([this] { m_intakeSubsystem.setAlgaePivot(false); }));
+      .OnTrue(frc2::cmd::RunOnce([this]
+                                 { m_intakeSubsystem.setAlgaePivot(true); }))
+      .OnFalse(frc2::cmd::RunOnce([this]
+                                  { m_intakeSubsystem.setAlgaePivot(false); }));
 
   // frc2::Trigger{[this]()pzzzP
   //               { return secondaryController.GetRawButton(8); }}
@@ -204,6 +245,23 @@ void RobotContainer::ConfigureBindings()
   //         m_ledSystem.UpdateSetLed([]() { return 0.0; }, []() { return 0.0; }, []() { return 255.0; }, []() { return 1.0; });
   //         m_ledSystem.SetColors();
   //       } }));
+
+  frc2::Trigger{[this]()
+                { return primaryController.GetYButton(); }}
+      .OnTrue(frc2::cmd::RunOnce([this]
+                                 { m_climbSubsystem.SetClimbState(ClimbSubsystem::ClimbStates::algae); }));
+
+  frc2::Trigger{[this]()
+                { return primaryController.GetAButton(); }}
+      .OnTrue(frc2::cmd::RunOnce([this]
+                                 { m_climbSubsystem.SetClimbState(ClimbSubsystem::ClimbStates::processor); }));
+
+  frc2::Trigger{[this]()
+                { return primaryController.GetRightBumperButton(); }}
+      .OnTrue(frc2::cmd::RunOnce([this]
+                                 { m_climbSubsystem.SetClimbState(ClimbSubsystem::ClimbStates::spit); }))
+      .OnFalse(frc2::cmd::RunOnce([this]
+                                  { m_climbSubsystem.SetClimbState(ClimbSubsystem::ClimbStates::in); }));
 }
 
 frc2::Command *RobotContainer::GetAutonomousCommand()

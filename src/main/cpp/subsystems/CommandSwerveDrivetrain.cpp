@@ -30,7 +30,7 @@ void CommandSwerveDrivetrain::ConfigureAutoBuilder()
             // PID constants for translation
             pathplanner::PIDConstants{14, 0.0, 0.0},
             // PID constants for rotation
-            pathplanner::PIDConstants{10.0, 0.0, 0.0}),
+            pathplanner::PIDConstants{8.0, 0.0, 0.0}),
         std::move(config),
         // Assume the path needs to be flipped for Red vs Blue, this is normally the case
         []
@@ -93,7 +93,7 @@ int CommandSwerveDrivetrain::ClosestAprilTag()
     // Use the robot pose and return the closest AprilTag on a REEF
     std::vector<int> tagIDs = {17, 18, 19, 20, 21, 22};
 
-    if (frc::DriverStation::Alliance::kRed)
+    if (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kRed)
     {
         tagIDs = {6, 7, 8, 9, 10, 11};
     }

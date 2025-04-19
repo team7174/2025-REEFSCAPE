@@ -18,19 +18,21 @@
 #include "subsystems/CANdleSystem.h"
 #include "subsystems/ClimbSubsystem.h"
 
-class RobotContainer {
+class RobotContainer
+{
 private:
-    units::meters_per_second_t MaxSpeed = 4.5_mps; //TunerConstants::kSpeedAt12Volts; // kSpeedAt12Volts desired top speed
-    units::radians_per_second_t MaxAngularRate = 1.0_tps; // 3/4 of a rotation per second max angular velocity
+    units::meters_per_second_t MaxSpeed = 4.0_mps;         // TunerConstants::kSpeedAt12Volts; // kSpeedAt12Volts desired top speed
+    units::radians_per_second_t MaxAngularRate = 0.75_tps; // 3/4 of a rotation per second max angular velocity
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     swerve::requests::FieldCentric drive = swerve::requests::FieldCentric{}
-        .WithDeadband(MaxSpeed * 0.1).WithRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
-        .WithDriveRequestType(swerve::DriveRequestType::OpenLoopVoltage); // Use open-loop control for drive motors
+                                               .WithDeadband(MaxSpeed * 0.1)
+                                               .WithRotationalDeadband(MaxAngularRate * 0.1)                     // Add a 10% deadband
+                                               .WithDriveRequestType(swerve::DriveRequestType::OpenLoopVoltage); // Use open-loop control for drive motors
     swerve::requests::SwerveDriveBrake brake{};
     swerve::requests::PointWheelsAt point{};
     swerve::requests::RobotCentric forwardStraight = swerve::requests::RobotCentric{}
-        .WithDriveRequestType(swerve::DriveRequestType::OpenLoopVoltage);
+                                                         .WithDriveRequestType(swerve::DriveRequestType::OpenLoopVoltage);
 
     /* Note: This must be constructed before the drivetrain, otherwise we need to
      *       define a destructor to un-register the telemetry from the drivetrain */
@@ -43,11 +45,12 @@ public:
     ElevatorSubsystem m_elevatorSubsystem;
     ClimbSubsystem m_climbSubsystem;
     CANdleSystem m_ledSystem;
-
+    
+    std::optional<frc2::CommandPtr> autoAlignCommand;
 
     bool CoralMode = true;
 
-    static RobotContainer& GetInstance();
+    static RobotContainer &GetInstance();
 
 private:
     /* Path follower */
@@ -63,5 +66,4 @@ private:
 
     frc::XboxController primaryController{0};
     frc::Joystick secondaryController{1};
-
 };

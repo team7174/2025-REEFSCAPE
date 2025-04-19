@@ -17,7 +17,7 @@ class TunerConstants {
     // The steer motor uses any SwerveModule.SteerRequestType control request with the
     // output type specified by SwerveModuleConstants::SteerMotorClosedLoopOutput
     static constexpr configs::Slot0Configs steerGains = configs::Slot0Configs{}
-        .WithKP(80).WithKI(0).WithKD(1.0)
+        .WithKP(80).WithKI(0).WithKD(0.5)
         .WithKS(0.0).WithKV(0.0).WithKA(0)
         .WithStaticFeedforwardSign(signals::StaticFeedforwardSignValue::UseClosedLoopSign);
     // When using closed-loop control, the drive motor uses the control

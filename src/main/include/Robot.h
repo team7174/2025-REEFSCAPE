@@ -39,8 +39,6 @@ private:
 
   RobotContainer m_container;
 
-  frc::Field2d m_field;
-
   static constexpr bool kUseLimelight = false;
 
   frc::Timer timer;
